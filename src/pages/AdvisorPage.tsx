@@ -6,6 +6,7 @@ import { NumberField } from "@/components/ui/NumberField";
 import { TextField } from "@/components/ui/TextField";
 import { formatGEL, monthsToYearsLabel } from "@/lib/format";
 import { evaluateAdvisor } from "@/lib/advisor";
+import { useLanguage } from "@/lib/LanguageContext";
 
 function defaultTargetDate() {
   const d = new Date();
@@ -14,6 +15,7 @@ function defaultTargetDate() {
 }
 
 export function AdvisorPage() {
+  const { t } = useLanguage();
   const [income, setIncome] = useState(3000);
   const [food, setFood] = useState(600);
   const [transport, setTransport] = useState(200);
@@ -31,7 +33,7 @@ export function AdvisorPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="ფინანსური მრჩეველი" subtitle="შეაფასე შენი გეგმის რეალისტურობა" />
+      <PageHeader title={t("advisorTitle")} subtitle={t("advisorSubtitle")} />
 
       <Card className="space-y-4">
         <NumberField label="ყოველთვიური შემოსავალი" value={income} onChange={setIncome} suffix="₾" step={100} />

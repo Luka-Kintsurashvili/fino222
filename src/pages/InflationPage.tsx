@@ -7,10 +7,12 @@ import { SliderField } from "@/components/ui/SliderField";
 import { formatGEL, formatPercent } from "@/lib/format";
 import { purchasingPower, equivalentFutureAmount } from "@/lib/inflation";
 import { georgiaInflationHistory, georgiaInflationAverage } from "@/data/inflationHistory";
+import { useLanguage } from "@/lib/LanguageContext";
 
 const inflationMaxRate = Math.max(...georgiaInflationHistory.map((h) => h.rate));
 
 export function InflationPage() {
+  const { t } = useLanguage();
   const [amount, setAmount] = useState(1000);
   const [years, setYears] = useState(10);
   const [rate, setRate] = useState(6);
@@ -21,7 +23,7 @@ export function InflationPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="ინფლაციის კალკულატორი" subtitle="იხილე, როგორ იცვლება ფულის მსყიდველობითი უნარი" />
+      <PageHeader title={t("inflationTitle")} subtitle={t("inflationSubtitle")} />
 
       <Card className="space-y-4">
         <NumberField label="დღევანდელი თანხა" value={amount} onChange={setAmount} suffix="₾" step={100} />

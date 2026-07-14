@@ -7,5 +7,7 @@
   </defs>
   <rect width="48" height="48" rx="12" fill="#0A0E17"/>
   <rect x="4" y="4" width="40" height="40" rx="10" fill="url(#g)"/>
-  <text x="24" y="32" font-family="Georgia, serif" font-size="24" font-weight="700" fill="white" text-anchor="middle">ფ</text>
+  <rect x="12" y="26" width="7" height="13" rx="2.5" fill="white"/>
+  <rect x="21" y="18" width="7" height="21" rx="2.5" fill="white"/>
+  <rect x="30" y="9" width="7" height="30" rx="2.5" fill="white" fill-opacity="0.85"/>
 </svg>

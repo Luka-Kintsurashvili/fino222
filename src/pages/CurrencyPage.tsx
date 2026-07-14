@@ -5,12 +5,14 @@ import { Card } from "@/components/ui/Card";
 import { CurrencyPickerSheet } from "@/components/currency/CurrencyPickerSheet";
 import { formatNumber } from "@/lib/format";
 import { currencies, convert, fetchGelRates, type CurrencyCode, type RatesResult } from "@/lib/currency";
+import { useLanguage } from "@/lib/LanguageContext";
 
 function currencyMeta(code: CurrencyCode) {
   return currencies.find((c) => c.code === code)!;
 }
 
 export function CurrencyPage() {
+  const { t } = useLanguage();
   const [amount, setAmount] = useState(100);
   const [amountText, setAmountText] = useState("100");
   const [from, setFrom] = useState<CurrencyCode>("USD");
@@ -49,7 +51,7 @@ export function CurrencyPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="ვალუტის კონვერტორი" subtitle="რეალურ დროში კურსები" />
+      <PageHeader title={t("currencyTitle")} subtitle={t("currencySubtitle")} />
 
       {ratesResult && !ratesResult.live && (
         <div className="flex items-center gap-2 rounded-xl border border-warning/30 bg-warning-soft px-4 py-2.5 text-xs text-warning">

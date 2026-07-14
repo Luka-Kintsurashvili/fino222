@@ -1,6 +1,6 @@
 import { banks, type Bank } from "@/data/banks";
 
-export type LoanType = "consumer" | "mortgage" | "auto";
+export type LoanType = "consumer" | "mortgage" | "auto" | "business" | "micro";
 
 export interface LoanOffer {
   bank: Bank;
@@ -13,6 +13,8 @@ export interface LoanOffer {
 export function rateForLoanType(bank: Bank, type: LoanType): number {
   if (type === "mortgage") return bank.mortgageRate;
   if (type === "auto") return bank.autoRate;
+  if (type === "business") return bank.businessRate;
+  if (type === "micro") return bank.microRate;
   return bank.consumerRate;
 }
 

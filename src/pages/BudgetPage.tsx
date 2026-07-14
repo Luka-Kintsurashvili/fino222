@@ -6,8 +6,10 @@ import { CategorySliderRow } from "@/components/ui/CategorySliderRow";
 import { formatGEL, formatPercent } from "@/lib/format";
 import { budgetRules } from "@/data/budgetRules";
 import { budgetCategories, seedAmountsFromRule, type BudgetCategoryKey } from "@/data/budgetCategories";
+import { useLanguage } from "@/lib/LanguageContext";
 
 export function BudgetPage() {
+  const { t } = useLanguage();
   const [income, setIncome] = useState(3000);
   const [ruleId, setRuleId] = useState(budgetRules[0].id);
   const [amounts, setAmounts] = useState<Record<BudgetCategoryKey, number>>(() =>
@@ -30,7 +32,7 @@ export function BudgetPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="ბიუჯეტის დაგეგმვა" subtitle="აირჩიე წესი, შემდეგ თავად დაარეგულირე თითოეული კატეგორია" />
+      <PageHeader title={t("budgetTitle")} subtitle={t("budgetSubtitle")} />
 
       <Card className="space-y-4">
         <NumberField

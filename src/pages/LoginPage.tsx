@@ -3,14 +3,18 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Loader2, CircleAlert, CircleCheck, MailCheck } from "lucide-react";
 import { GlowOrbs } from "@/components/ui/GlowOrbs";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { FinoMark } from "@/components/ui/FinoMark";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { useLanguage } from "@/lib/LanguageContext";
+import { LanguageToggle } from "@/components/layout/LanguageToggle";
 
 type Mode = "signin" | "signup" | "reset" | "confirm";
 
 export function LoginPage() {
   const { user, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [mode, setMode] = useState<Mode>("signin");
@@ -105,16 +109,15 @@ export function LoginPage() {
   return (
     <div className="relative flex min-h-dvh items-center justify-center overflow-hidden px-6">
       <GlowOrbs />
-      <div className="safe-top absolute right-4 top-4 z-20">
+      <div className="safe-top absolute right-4 top-4 z-20 flex gap-2">
+        <LanguageToggle />
         <ThemeToggle />
       </div>
       <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl gradient-accent text-xl font-bold text-white shadow-[0_8px_30px_rgba(99,102,241,0.5)]">
-            ფ
-          </span>
-          <h1 className="text-2xl font-bold text-text-primary">ფინო</h1>
-          <p className="mt-1 text-sm text-text-secondary">შენი პირადი ფინანსური ასისტენტი</p>
+          <FinoMark size={56} className="mb-4 !shadow-[0_8px_30px_rgba(99,102,241,0.5)]" />
+          <h1 className="text-2xl font-bold text-text-primary">{t("appName")}</h1>
+          <p className="mt-1 text-sm text-text-secondary">{t("tagline")}</p>
         </div>
 
         <div className="glass rounded-3xl border border-border-soft p-6 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
@@ -167,7 +170,7 @@ export function LoginPage() {
                   mode === "signin" ? "gradient-accent text-white" : "text-text-secondary"
                 }`}
               >
-                შესვლა
+                {t("signIn")}
               </button>
               <button
                 onClick={() => switchMode("signup")}
@@ -175,7 +178,7 @@ export function LoginPage() {
                   mode === "signup" ? "gradient-accent text-white" : "text-text-secondary"
                 }`}
               >
-                რეგისტრაცია
+                {t("signUp")}
               </button>
             </div>
           )}
@@ -194,7 +197,7 @@ export function LoginPage() {
                 <input
                   type="text"
                   required
-                  placeholder="სახელი გვარი"
+                  placeholder={t("fullName")}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
@@ -207,7 +210,7 @@ export function LoginPage() {
               <input
                 type="email"
                 required
-                placeholder="ელფოსტა"
+                placeholder={t("email")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
@@ -221,7 +224,7 @@ export function LoginPage() {
                   type="password"
                   required
                   minLength={6}
-                  placeholder="პაროლი"
+                  placeholder={t("password")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
@@ -236,7 +239,7 @@ export function LoginPage() {
                   type="password"
                   required
                   minLength={6}
-                  placeholder="გაიმეორე პაროლი"
+                  placeholder={t("confirmPassword")}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
@@ -250,7 +253,7 @@ export function LoginPage() {
                 onClick={() => switchMode("reset")}
                 className="block text-right text-xs text-text-muted hover:text-accent"
               >
-                დაგავიწყდა პაროლი?
+                {t("forgotPassword")}
               </button>
             )}
 
@@ -269,8 +272,8 @@ export function LoginPage() {
 
             <Button type="submit" disabled={loading} className="w-full">
               {loading && <Loader2 size={16} className="animate-spin" />}
-              {mode === "signin" && "შესვლა"}
-              {mode === "signup" && "რეგისტრაცია"}
+              {mode === "signin" && t("signIn")}
+              {mode === "signup" && t("signUp")}
               {mode === "reset" && "ბმულის გაგზავნა"}
             </Button>
 
@@ -289,7 +292,7 @@ export function LoginPage() {
             <>
               <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-border" />
-                <span className="text-xs text-text-muted">ან</span>
+                <span className="text-xs text-text-muted">{t("or")}</span>
                 <div className="h-px flex-1 bg-border" />
               </div>
 
@@ -315,7 +318,7 @@ export function LoginPage() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Google-ით გაგრძელება
+                {t("continueWithGoogle")}
               </button>
             </>
           )}

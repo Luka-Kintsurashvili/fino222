@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { X } from "lucide-react";
 import { moreNav } from "@/lib/nav";
+import { useLanguage } from "@/lib/LanguageContext";
 
 interface MoreSheetProps {
   open: boolean;
@@ -8,6 +9,7 @@ interface MoreSheetProps {
 }
 
 export function MoreSheet({ open, onClose }: MoreSheetProps) {
+  const { t } = useLanguage();
   return (
     <div className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`} inert={!open}>
       <div
@@ -23,13 +25,13 @@ export function MoreSheet({ open, onClose }: MoreSheetProps) {
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-text-primary">მეტი</h2>
+          <h2 className="text-lg font-bold text-text-primary">{t("moreSheetTitle")}</h2>
           <button onClick={onClose} className="rounded-full p-1.5 text-text-muted hover:bg-surface hover:text-text-primary">
             <X size={20} />
           </button>
         </div>
         <div className="grid grid-cols-3 gap-3 pb-2">
-          {moreNav.map(({ path, label, icon: Icon }) => (
+          {moreNav.map(({ path, labelKey, icon: Icon }) => (
             <NavLink
               key={path}
               to={path}
@@ -43,7 +45,7 @@ export function MoreSheet({ open, onClose }: MoreSheetProps) {
               }
             >
               <Icon size={22} />
-              <span>{label}</span>
+              <span>{t(labelKey)}</span>
             </NavLink>
           ))}
         </div>

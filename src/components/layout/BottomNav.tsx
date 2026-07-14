@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { primaryNav } from "@/lib/nav";
+import { useLanguage } from "@/lib/LanguageContext";
 
 interface BottomNavProps {
   onMoreClick: () => void;
@@ -8,10 +9,11 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ onMoreClick, moreActive }: BottomNavProps) {
+  const { t } = useLanguage();
   return (
     <nav className="safe-bottom sticky bottom-0 z-40 border-t border-border-soft bg-bg/90 backdrop-blur-xl">
       <div className="mx-auto grid max-w-lg grid-cols-5 px-1 py-1.5">
-        {primaryNav.map(({ path, label, icon: Icon }) => (
+        {primaryNav.map(({ path, labelKey, icon: Icon }) => (
           <NavLink
             key={path}
             to={path}
@@ -24,7 +26,7 @@ export function BottomNav({ onMoreClick, moreActive }: BottomNavProps) {
             {({ isActive }) => (
               <>
                 <Icon size={20} strokeWidth={isActive ? 2.4 : 2} style={isActive ? { color: "#8B5CF6" } : undefined} />
-                <span>{label}</span>
+                <span>{t(labelKey)}</span>
               </>
             )}
           </NavLink>
@@ -36,7 +38,7 @@ export function BottomNav({ onMoreClick, moreActive }: BottomNavProps) {
           }`}
         >
           <Menu size={20} strokeWidth={moreActive ? 2.4 : 2} style={moreActive ? { color: "#8B5CF6" } : undefined} />
-          <span>მეტი</span>
+          <span>{t("navMore")}</span>
         </button>
       </div>
     </nav>

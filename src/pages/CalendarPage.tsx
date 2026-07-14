@@ -12,15 +12,17 @@ import { buildMonthGrid, weekdayLabels } from "@/lib/calendar";
 import { tagColors } from "@/data/tagColors";
 import { useAuth } from "@/lib/AuthContext";
 import { usePayments } from "@/hooks/usePayments";
+import { useLanguage } from "@/lib/LanguageContext";
 
 export function CalendarPage() {
   const { user, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
 
   if (authLoading) return null;
   if (!user)
     return (
       <div className="space-y-5">
-        <PageHeader title="გადახდების კალენდარი" subtitle="ნუ გამოტოვებ გადასახდელ თარიღებს" />
+        <PageHeader title={t("calendarTitle")} subtitle={t("calendarSubtitle")} />
         <AuthGate message="გადახდების კალენდრის სანახავად საჭიროა ავტორიზაცია." />
       </div>
     );
@@ -29,6 +31,7 @@ export function CalendarPage() {
 }
 
 function CalendarView() {
+  const { t } = useLanguage();
   const { payments, loading, addPayment, deletePayment } = usePayments();
   const [cursor, setCursor] = useState(() => new Date());
   const [open, setOpen] = useState(false);
@@ -76,7 +79,7 @@ function CalendarView() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <PageHeader title="გადახდების კალენდარი" subtitle="ნუ გამოტოვებ გადასახდელ თარიღებს" />
+        <PageHeader title={t("calendarTitle")} subtitle={t("calendarSubtitle")} />
         <Button onClick={() => setOpen(true)} className="mb-5 !px-3 !py-2.5">
           <Plus size={18} />
         </Button>

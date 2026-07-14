@@ -2,15 +2,10 @@ import { useMemo, useState } from "react";
 import { Trophy } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { NumberField } from "@/components/ui/NumberField";
-import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { BankLogo } from "@/components/ui/BankLogo";
+import { LoanTypeGrid } from "@/components/loan/LoanTypeGrid";
 import { formatGEL, formatPercent } from "@/lib/format";
 import { compareLoanOffers, type LoanType } from "@/lib/loan";
-
-const loanTypeOptions: { value: LoanType; label: string }[] = [
-  { value: "consumer", label: "სამომხმარებლო" },
-  { value: "mortgage", label: "იპოთეკა" },
-  { value: "auto", label: "საავტომობილო" },
-];
 
 export function LoanComparisonTab() {
   const [amount, setAmount] = useState(10000);
@@ -27,7 +22,7 @@ export function LoanComparisonTab() {
         <NumberField label="ვადა (თვეები)" value={months} onChange={setMonths} suffix="თვე" min={1} max={360} />
         <div>
           <span className="mb-2 block text-sm font-medium text-text-secondary">სესხის ტიპი</span>
-          <SegmentedControl options={loanTypeOptions} value={type} onChange={setType} />
+          <LoanTypeGrid value={type} onChange={setType} />
         </div>
       </Card>
 
@@ -38,7 +33,10 @@ export function LoanComparisonTab() {
             <Trophy size={14} />
             ყველაზე ხელსაყრელი შეთავაზება
           </div>
-          <p className="text-lg font-bold text-text-primary">{cheapest.bank.name}</p>
+          <div className="flex items-center gap-2">
+            <BankLogo bank={cheapest.bank} size={24} />
+            <p className="text-lg font-bold text-text-primary">{cheapest.bank.name}</p>
+          </div>
           <div className="mt-3 flex items-end justify-between">
             <div>
               <p className="text-xs text-text-muted">ყოველთვიური გადასახადი</p>
@@ -61,9 +59,7 @@ export function LoanComparisonTab() {
           <Card key={offer.bank.id} className={i === 0 ? "border-accent/20" : ""}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-surface text-sm font-bold text-text-secondary">
-                  {i + 1}
-                </span>
+                <BankLogo bank={offer.bank} size={36} />
                 <div>
                   <p className="font-semibold text-text-primary">{offer.bank.name}</p>
                   <p className="text-xs text-text-muted">{formatPercent(offer.annualRate * 100)} წლიური</p>

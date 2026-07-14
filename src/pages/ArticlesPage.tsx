@@ -3,8 +3,10 @@ import { ChevronDown, Clock } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { articles, categoryLabels, type ArticleCategory } from "@/data/articles";
+import { useLanguage } from "@/lib/LanguageContext";
 
 export function ArticlesPage() {
+  const { t } = useLanguage();
   const [category, setCategory] = useState<ArticleCategory | "all">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -15,7 +17,7 @@ export function ArticlesPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="სტატიები" subtitle="ფინანსური განათლება მოკლედ და გასაგებად" />
+      <PageHeader title={t("articlesTitle")} subtitle={t("articlesSubtitle")} />
 
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 no-scrollbar">
         <button

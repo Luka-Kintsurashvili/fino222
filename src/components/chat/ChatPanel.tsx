@@ -15,7 +15,7 @@ interface ChatPanelProps {
 const WELCOME: ChatMessage = {
   id: "welcome",
   role: "assistant",
-  text: "გამარჯობა! მე ვარ ფინო — შენი ფინანსური ასისტენტი. დამისვი კითხვა სესხების, დანაზოგების, ბიუჯეტის ან ინვესტიციების შესახებ.",
+  text: "გამარჯობა! ფინო ასისტენტი მალე დაემატება — ამ ფუნქციაზე ჯერ კიდევ ვმუშაობთ. მალე დაბრუნდი!",
 };
 
 export function ChatPanel({ open, onClose }: ChatPanelProps) {
@@ -30,16 +30,21 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   function handleSend() {
     const text = input.trim();
     if (!text) return;
+
+    const userMessage: ChatMessage = { id: crypto.randomUUID(), role: "user", text };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+
+    // The Gemini-powered assistant isn't live yet — respond honestly instead of
+    // firing a network call that has no working backend behind it.
     setMessages((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), role: "user", text },
       {
         id: crypto.randomUUID(),
         role: "assistant",
-        text: "ჩატის ბექენდი ჯერ არ არის მიერთებული — ეს ფუნქცია მალე დაემატება.",
+        text: "ჩატ-ასისტენტი ჯერ არ არის აქტიური — ამ ფუნქციაზე მუშაობა მალე დასრულდება. მადლობა მოთმინებისთვის!",
       },
     ]);
-    setInput("");
   }
 
   return (
@@ -94,11 +99,11 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="დაწერე შეკითხვა..."
-              className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
+              className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted disabled:opacity-60"
             />
             <button
               onClick={handleSend}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-accent text-white"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-accent text-white disabled:opacity-60"
             >
               <Send size={15} />
             </button>
