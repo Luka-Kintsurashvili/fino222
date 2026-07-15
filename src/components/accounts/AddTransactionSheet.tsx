@@ -7,18 +7,22 @@ import { Button } from "@/components/ui/Button";
 import { budgetCategories, type BudgetCategoryKey } from "@/data/budgetCategories";
 import { useLanguage } from "@/lib/LanguageContext";
 import type { Transaction, TransactionType } from "@/types/transaction";
+import type { Project } from "@/types/project";
 
 interface AddTransactionSheetProps {
   open: boolean;
   onClose: () => void;
   onAdd: (t: Omit<Transaction, "id">) => void;
+  projects?: Project[];
+  defaultProjectId?: string;
 }
 
-export function AddTransactionSheet({ open, onClose, onAdd }: AddTransactionSheetProps) {
+export function AddTransactionSheet({ open, onClose, onAdd, projects = [], defaultProjectId }: AddTransactionSheetProps) {
   const { t } = useLanguage();
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState<BudgetCategoryKey>("food");
+  const [projectId, setProjectId] = useState<string | undefined>(defaultProjectId);
   const [note, setNote] = useState("");
 
   const typeOptions: { value: TransactionType; label: string }[] = [
@@ -32,11 +36,13 @@ export function AddTransactionSheet({ open, onClose, onAdd }: AddTransactionShee
       type,
       amount,
       category: type === "expense" ? category : undefined,
+      projectId: type === "expense" ? projectId : undefined,
       note: note.trim(),
       date: new Date().toISOString().slice(0, 10),
     });
     setAmount(0);
     setNote("");
+    setProjectId(defaultProjectId);
     onClose();
   }
 
@@ -71,6 +77,37 @@ export function AddTransactionSheet({ open, onClose, onAdd }: AddTransactionShee
                 </button>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {type === "expense" && projects.length > 0 && !defaultProjectId && (
+        <div>
+          <span className="mb-2 block text-sm font-medium text-text-secondary">{t("project")}</span>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setProjectId(undefined)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                !projectId ? "border-accent/50 bg-accent-soft text-text-primary" : "border-border bg-surface text-text-secondary"
+              }`}
+            >
+              {t("noProject")}
+            </button>
+            {projects.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setProjectId(p.id)}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  projectId === p.id
+                    ? "border-accent/50 bg-accent-soft text-text-primary"
+                    : "border-border bg-surface text-text-secondary"
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
           </div>
         </div>
       )}

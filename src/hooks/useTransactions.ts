@@ -13,15 +13,16 @@ function isoDate(monthsAgo: number, day: number): string {
 
 function seedTransactions(): Transaction[] {
   return [
-    { id: "seed-1", type: "income", amount: 2800, note: "ხელფასი", date: isoDate(2, 5) },
+    { id: "seed-1", type: "income", amount: 2400, note: "ხელფასი", date: isoDate(2, 5) },
     { id: "seed-2", type: "expense", amount: 850, category: "housing", note: "ქირა", date: isoDate(2, 6) },
     { id: "seed-3", type: "expense", amount: 420, category: "food", note: "სუპერმარკეტი", date: isoDate(2, 12) },
     { id: "seed-4", type: "expense", amount: 180, category: "transport", note: "ბენზინი", date: isoDate(2, 18) },
-    { id: "seed-5", type: "income", amount: 2800, note: "ხელფასი", date: isoDate(1, 5) },
+    { id: "seed-5", type: "income", amount: 2850, note: "ხელფასი", date: isoDate(1, 5) },
+    { id: "seed-5b", type: "income", amount: 400, note: "ბონუსი", date: isoDate(1, 16) },
     { id: "seed-6", type: "expense", amount: 850, category: "housing", note: "ქირა", date: isoDate(1, 6) },
     { id: "seed-7", type: "expense", amount: 390, category: "food", note: "სუპერმარკეტი", date: isoDate(1, 11) },
     { id: "seed-8", type: "expense", amount: 220, category: "entertainment", note: "კინო და გართობა", date: isoDate(1, 20) },
-    { id: "seed-9", type: "income", amount: 2950, note: "ხელფასი", date: isoDate(0, 5) },
+    { id: "seed-9", type: "income", amount: 3400, note: "ხელფასი", date: isoDate(0, 5) },
     { id: "seed-10", type: "expense", amount: 850, category: "housing", note: "ქირა", date: isoDate(0, 6) },
     { id: "seed-11", type: "expense", amount: 310, category: "food", note: "სუპერმარკეტი", date: isoDate(0, 9) },
     { id: "seed-12", type: "expense", amount: 95, category: "transport", note: "ტაქსი", date: isoDate(0, 13) },

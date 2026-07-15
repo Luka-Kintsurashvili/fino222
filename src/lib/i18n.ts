@@ -122,6 +122,28 @@ export const translations = {
   expensesByCategory: { ka: "ხარჯები კატეგორიების მიხედვით", en: "Expenses by category" },
   leftoverByMonth: { ka: "დარჩენილი თანხა თვეების მიხედვით", en: "Leftover by month" },
   noData: { ka: "მონაცემები არ არის", en: "No data yet" },
+  totalIncome: { ka: "შემოსავალი", en: "Income" },
+  totalExpenses: { ka: "ხარჯი", en: "Expenses" },
+  net: { ka: "სხვაობა", en: "Net" },
+
+  // Projects
+  projects: { ka: "პროექტები", en: "Projects" },
+  addProject: { ka: "პროექტის დამატება", en: "Add project" },
+  projectName: { ka: "პროექტის სახელი", en: "Project name" },
+  projectNamePlaceholder: { ka: "მაგ. სახლის რემონტი", en: "e.g. Home renovation" },
+  setBudget: { ka: "ბიუჯეტის დაწესება", en: "Set a budget" },
+  projectBudget: { ka: "პროექტის ბიუჯეტი", en: "Project budget" },
+  noProjects: { ka: "ჯერ არ გაქვს პროექტი", en: "No projects yet" },
+  noProjectsHint: {
+    ka: "შექმენი პროექტი, მაგალითად „სახლის რემონტი“, და თვალი ადევნე მასზე დახარჯულ თანხას",
+    en: "Create one, like \"Home renovation\", and track what you spend on it",
+  },
+  spentSoFar: { ka: "დახარჯული", en: "spent so far" },
+  spentOnProject: { ka: "დახარჯულია", en: "Spent" },
+  projectSubtitle: { ka: "ამ პროექტზე დახარჯული თანხა", en: "Spending tracked for this project" },
+  deleteProject: { ka: "პროექტის წაშლა", en: "Delete project" },
+  project: { ka: "პროექტი", en: "Project" },
+  noProject: { ka: "პროექტის გარეშე", en: "No project" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

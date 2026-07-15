@@ -8,6 +8,8 @@ export interface Transaction {
   amount: number;
   /** Only meaningful for expenses. */
   category?: BudgetCategoryKey;
+  /** Only meaningful for expenses — ties this transaction to a custom tracking project. */
+  projectId?: string;
   note: string;
   date: string;
 }

@@ -6,6 +6,7 @@ import { LanguageProvider } from "@/lib/LanguageContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AccountsPage } from "@/pages/AccountsPage";
 import { GraphsPage } from "@/pages/GraphsPage";
+import { ProjectPage } from "@/pages/ProjectPage";
 import { LoanPage } from "@/pages/LoanPage";
 import { SavingsPage } from "@/pages/SavingsPage";
 import { BudgetPage } from "@/pages/BudgetPage";
@@ -33,6 +34,7 @@ function App() {
                   <Route index element={<Navigate to="/accounts" replace />} />
                   <Route path="/accounts" element={<AccountsPage />} />
                   <Route path="/graphs" element={<GraphsPage />} />
+                  <Route path="/projects/:id" element={<ProjectPage />} />
                   <Route path="/loan" element={<LoanPage />} />
                   <Route path="/savings" element={<SavingsPage />} />
                   <Route path="/budget" element={<BudgetPage />} />
