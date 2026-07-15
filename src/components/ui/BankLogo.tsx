@@ -6,7 +6,7 @@ interface BankBrand {
   to: string;
 }
 
-const BRAND: Record<string, BankBrand> = {
+export const BANK_BRAND: Record<string, BankBrand> = {
   tbc: { initials: "TBC", from: "#0057FF", to: "#00A3FF" },
   bog: { initials: "BOG", from: "#FF4238", to: "#FF8A38" },
   liberty: { initials: "LB", from: "#00B67A", to: "#4FE3A8" },
@@ -21,7 +21,7 @@ interface BankLogoProps {
 
 /** Original monogram badge — not a reproduction of any bank's real logo. */
 export function BankLogo({ bank, size = 28 }: BankLogoProps) {
-  const brand = BRAND[bank.id] ?? { initials: bank.name.slice(0, 2).toUpperCase(), from: "#3B82F6", to: "#8B5CF6" };
+  const brand = BANK_BRAND[bank.id] ?? { initials: bank.name.slice(0, 2).toUpperCase(), from: "#3B82F6", to: "#8B5CF6" };
   const fontSize = size * 0.34;
 
   return (

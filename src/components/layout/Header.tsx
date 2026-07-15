@@ -10,7 +10,7 @@ export function Header() {
   return (
     <header className="safe-top sticky top-0 z-40 border-b border-border-soft bg-bg/80 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
-        <Link to="/loan" className="flex items-center gap-2">
+        <Link to="/accounts" className="flex items-center gap-2">
           <FinoMark size={32} />
           <span className="text-lg font-bold text-text-primary">{t("appName")}</span>
         </Link>

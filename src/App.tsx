@@ -4,6 +4,8 @@ import { ChatUIProvider } from "@/lib/ChatUIContext";
 import { ThemeProvider } from "@/lib/ThemeContext";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AccountsPage } from "@/pages/AccountsPage";
+import { GraphsPage } from "@/pages/GraphsPage";
 import { LoanPage } from "@/pages/LoanPage";
 import { SavingsPage } from "@/pages/SavingsPage";
 import { BudgetPage } from "@/pages/BudgetPage";
@@ -28,7 +30,9 @@ function App() {
               <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route element={<AppLayout />}>
-                  <Route index element={<Navigate to="/loan" replace />} />
+                  <Route index element={<Navigate to="/accounts" replace />} />
+                  <Route path="/accounts" element={<AccountsPage />} />
+                  <Route path="/graphs" element={<GraphsPage />} />
                   <Route path="/loan" element={<LoanPage />} />
                   <Route path="/savings" element={<SavingsPage />} />
                   <Route path="/budget" element={<BudgetPage />} />
@@ -42,7 +46,7 @@ function App() {
                   <Route path="/security" element={<SecurityPage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="*" element={<Navigate to="/loan" replace />} />
+                  <Route path="*" element={<Navigate to="/accounts" replace />} />
                 </Route>
               </Routes>
             </BrowserRouter>

@@ -5,6 +5,8 @@ export const translations = {
   tagline: { ka: "შენი პირადი ფინანსური ასისტენტი", en: "Your personal finance assistant" },
 
   // Bottom nav / More sheet
+  navAccounts: { ka: "მთავარი", en: "Home" },
+  navGraphs: { ka: "გრაფები", en: "Graphs" },
   navLoan: { ka: "სესხი", en: "Loan" },
   navBudget: { ka: "ბიუჯეტი", en: "Budget" },
   navSavings: { ka: "დანაზოგი", en: "Savings" },
@@ -17,6 +19,15 @@ export const translations = {
   moreSheetTitle: { ka: "მეტი", en: "More" },
 
   // Page headers
+  accountsTitle: { ka: "მთავარი", en: "Home" },
+  accountsSubtitle: {
+    ka: "შენი ანგარიშები და ხარჯები ერთ ადგილას",
+    en: "All your accounts and spending in one place",
+  },
+  graphsSubtitle: {
+    ka: "შემოსავალი, ხარჯები და დანაზოგი თვეების მიხედვით",
+    en: "Income, expenses, and savings by month",
+  },
   loanTitle: { ka: "სესხი", en: "Loan" },
   loanSubtitle: {
     ka: "შეადარე, დაგეგმე ვადაზე ადრე დაფარვა და შეამოწმე შენი შესაძლებლობები",
@@ -89,6 +100,28 @@ export const translations = {
   themeDark: { ka: "მუქი", en: "Dark" },
   themeLight: { ka: "ღია", en: "Light" },
   language: { ka: "ენა", en: "Language" },
+
+  // Accounts / home tab
+  totalBalance: { ka: "სულ თანხა", en: "Total balance" },
+  addAccount: { ka: "ბარათის დამატება", en: "Add card" },
+  bank: { ka: "ბანკი", en: "Bank" },
+  accountNickname: { ka: "ბარათის სახელი", en: "Card nickname" },
+  accountNicknamePlaceholder: { ka: "მაგ. ჩემი ბარათი", en: "e.g. My card" },
+  balance: { ka: "ბალანსი", en: "Balance" },
+  expenses: { ka: "ხარჯები", en: "Expenses" },
+  noExpenses: { ka: "ჯერ არ არის დამატებული ხარჯი", en: "No expenses added yet" },
+  addTransaction: { ka: "ჩანაწერის დამატება", en: "Add transaction" },
+  expense: { ka: "ხარჯი", en: "Expense" },
+  income: { ka: "შემოსავალი", en: "Income" },
+  amount: { ka: "თანხა", en: "Amount" },
+  category: { ka: "კატეგორია", en: "Category" },
+  note: { ka: "შენიშვნა", en: "Note" },
+  notePlaceholder: { ka: "მაგ. სუპერმარკეტი", en: "e.g. Groceries" },
+  graphsTileSubtitle: { ka: "შემოსავალი, ხარჯები და დანაზოგი", en: "Income, expenses, and savings" },
+  incomeByMonth: { ka: "შემოსავალი თვეების მიხედვით", en: "Income by month" },
+  expensesByCategory: { ka: "ხარჯები კატეგორიების მიხედვით", en: "Expenses by category" },
+  leftoverByMonth: { ka: "დარჩენილი თანხა თვეების მიხედვით", en: "Leftover by month" },
+  noData: { ka: "მონაცემები არ არის", en: "No data yet" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
