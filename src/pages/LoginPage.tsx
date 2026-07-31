@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Loader2, CircleAlert, CircleCheck, MailCheck } from "lucide-react";
 import { GlowOrbs } from "@/components/ui/GlowOrbs";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { FinoMark } from "@/components/ui/FinoMark";
+import { FinoFace } from "@/components/ui/FinoFace";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
@@ -27,10 +27,10 @@ export function LoginPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) navigate("/loan", { replace: true });
+    if (user) navigate("/", { replace: true });
   }, [user, navigate]);
 
-  if (!authLoading && user) return <Navigate to="/loan" replace />;
+  if (!authLoading && user) return <Navigate to="/" replace />;
 
   function switchMode(next: Mode) {
     setMode(next);
@@ -115,7 +115,7 @@ export function LoginPage() {
       </div>
       <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <FinoMark size={56} className="mb-4 !shadow-[0_8px_30px_rgba(99,102,241,0.5)]" />
+          <FinoFace size={56} className="mb-4" />
           <h1 className="text-2xl font-bold text-text-primary">{t("appName")}</h1>
           <p className="mt-1 text-sm text-text-secondary">{t("tagline")}</p>
         </div>

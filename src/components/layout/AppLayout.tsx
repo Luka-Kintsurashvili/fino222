@@ -1,25 +1,28 @@
-import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
-import { BottomNav } from "@/components/layout/BottomNav";
-import { MoreSheet } from "@/components/layout/MoreSheet";
-import { ChatBubble } from "@/components/chat/ChatBubble";
-import { moreNav } from "@/lib/nav";
+import { ChartDrawer } from "@/components/chat/ChartDrawer";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ChartDrawerProvider } from "@/lib/ChartDrawerContext";
+import { QuickSheetProvider } from "@/lib/QuickSheetContext";
+import { useAuth } from "@/lib/AuthContext";
 
 export function AppLayout() {
-  const [moreOpen, setMoreOpen] = useState(false);
   const location = useLocation();
-  const moreActive = moreNav.some((item) => location.pathname.startsWith(item.path));
+  const { user } = useAuth();
+  const isChatScreen = location.pathname === "/";
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-lg flex-col">
-      <Header />
-      <main className="flex-1 px-4 pb-6 pt-5">
-        <Outlet />
-      </main>
-      <BottomNav onMoreClick={() => setMoreOpen(true)} moreActive={moreActive} />
-      <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} />
-      <ChatBubble />
-    </div>
+    <ChartDrawerProvider>
+      <QuickSheetProvider>
+        <div className="mx-auto flex min-h-dvh max-w-lg flex-col">
+          <Header />
+          <main className={`flex-1 ${isChatScreen ? "" : "px-4 pb-6 pt-5"}`}>
+            <Outlet />
+          </main>
+          <ChartDrawer />
+          {user && <OnboardingModal />}
+        </div>
+      </QuickSheetProvider>
+    </ChartDrawerProvider>
   );
 }

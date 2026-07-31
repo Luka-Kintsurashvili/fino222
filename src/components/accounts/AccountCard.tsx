@@ -9,8 +9,8 @@ interface AccountCardProps {
 }
 
 export function AccountCard({ account }: AccountCardProps) {
-  const bank = banks.find((b) => b.id === account.bankId);
-  const brand = BANK_BRAND[account.bankId] ?? { initials: "??", from: "#3B82F6", to: "#8B5CF6" };
+  const bank = banks.find((b) => b.id === account.bank_id);
+  const brand = BANK_BRAND[account.bank_id] ?? { initials: "??", from: "#3B82F6", to: "#8B5CF6" };
 
   return (
     <div
@@ -19,11 +19,7 @@ export function AccountCard({ account }: AccountCardProps) {
     >
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ backgroundImage: "linear-gradient(115deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.08) 100%)" }}
-      />
-      <div
-        className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%)" }}
+        style={{ backgroundImage: "linear-gradient(115deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 40%)" }}
       />
 
       <div className="relative flex items-start justify-between">
@@ -32,7 +28,7 @@ export function AccountCard({ account }: AccountCardProps) {
             {brand.initials}
           </span>
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-white/70">{bank?.name ?? account.bankId}</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-white/70">{bank?.name ?? account.bank_id}</p>
             <p className="text-sm font-semibold">{account.nickname}</p>
           </div>
         </div>

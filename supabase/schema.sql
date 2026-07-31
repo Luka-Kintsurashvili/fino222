@@ -129,3 +129,118 @@ create policy "Users manage their own payments"
   on public.calendar_payments for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- Home tab: bank cards, expense-tracking projects, and transactions
+create table if not exists public.bank_accounts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  bank_id text not null,
+  nickname text not null,
+  balance numeric not null default 0,
+  last4 text not null default '0000',
+  created_at timestamptz not null default now()
+);
+
+alter table public.bank_accounts enable row level security;
+
+create policy "Users manage their own bank accounts"
+  on public.bank_accounts for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create table if not exists public.projects (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  budget numeric,
+  created_at timestamptz not null default now()
+);
+
+alter table public.projects enable row level security;
+
+create policy "Users manage their own projects"
+  on public.projects for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create table if not exists public.transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  type text not null check (type in ('income', 'expense')),
+  amount numeric not null check (amount > 0),
+  category text,
+  project_id uuid references public.projects(id) on delete set null,
+  note text not null default '',
+  date date not null default current_date,
+  -- Set only for transactions imported from a bank (e.g. TBC's movementId),
+  -- so re-syncing never creates duplicates.
+  external_id text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.transactions enable row level security;
+
+create policy "Users manage their own transactions"
+  on public.transactions for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create unique index if not exists transactions_user_external_id_idx
+  on public.transactions (user_id, external_id)
+  where external_id is not null;
+
+-- Net worth: things a user owns (beyond their bank cards) and owes
+create table if not exists public.assets (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  type text not null,
+  liquidity text not null check (liquidity in ('liquid', 'nonliquid')),
+  value numeric not null check (value >= 0),
+  created_at timestamptz not null default now()
+);
+
+alter table public.assets enable row level security;
+
+create policy "Users manage their own assets"
+  on public.assets for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create table if not exists public.liabilities (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  type text not null,
+  amount numeric not null check (amount >= 0),
+  created_at timestamptz not null default now()
+);
+
+alter table public.liabilities enable row level security;
+
+create policy "Users manage their own liabilities"
+  on public.liabilities for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- Funds: savings buckets funded from monthly income (replaces the older
+-- goals/goal_members/goal_invites group-sharing feature, which stays in
+-- place but unused for now in case group sharing comes back later).
+create table if not exists public.funds (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  target_amount numeric not null check (target_amount > 0),
+  saved_amount numeric not null default 0 check (saved_amount >= 0),
+  contribution_mode text not null default 'fixed' check (contribution_mode in ('fixed', 'percent')),
+  contribution_value numeric not null default 0 check (contribution_value >= 0),
+  is_rainy_day boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.funds enable row level security;
+
+create policy "Users manage their own funds"
+  on public.funds for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);

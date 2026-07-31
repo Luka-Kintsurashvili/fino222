@@ -1,49 +1,79 @@
-import { useMemo } from "react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import type { Transaction } from "@/types/transaction";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { useAuth } from "@/lib/AuthContext";
+import type { Transaction, TransactionInput } from "@/types/transaction";
 import type { BudgetCategoryKey } from "@/data/budgetCategories";
 
-function isoDate(monthsAgo: number, day: number): string {
-  const d = new Date();
-  d.setDate(1);
-  d.setMonth(d.getMonth() - monthsAgo);
-  d.setDate(day);
-  return d.toISOString().slice(0, 10);
-}
-
-function seedTransactions(): Transaction[] {
-  return [
-    { id: "seed-1", type: "income", amount: 2400, note: "ხელფასი", date: isoDate(2, 5) },
-    { id: "seed-2", type: "expense", amount: 850, category: "housing", note: "ქირა", date: isoDate(2, 6) },
-    { id: "seed-3", type: "expense", amount: 420, category: "food", note: "სუპერმარკეტი", date: isoDate(2, 12) },
-    { id: "seed-4", type: "expense", amount: 180, category: "transport", note: "ბენზინი", date: isoDate(2, 18) },
-    { id: "seed-5", type: "income", amount: 2850, note: "ხელფასი", date: isoDate(1, 5) },
-    { id: "seed-5b", type: "income", amount: 400, note: "ბონუსი", date: isoDate(1, 16) },
-    { id: "seed-6", type: "expense", amount: 850, category: "housing", note: "ქირა", date: isoDate(1, 6) },
-    { id: "seed-7", type: "expense", amount: 390, category: "food", note: "სუპერმარკეტი", date: isoDate(1, 11) },
-    { id: "seed-8", type: "expense", amount: 220, category: "entertainment", note: "კინო და გართობა", date: isoDate(1, 20) },
-    { id: "seed-9", type: "income", amount: 3400, note: "ხელფასი", date: isoDate(0, 5) },
-    { id: "seed-10", type: "expense", amount: 850, category: "housing", note: "ქირა", date: isoDate(0, 6) },
-    { id: "seed-11", type: "expense", amount: 310, category: "food", note: "სუპერმარკეტი", date: isoDate(0, 9) },
-    { id: "seed-12", type: "expense", amount: 95, category: "transport", note: "ტაქსი", date: isoDate(0, 13) },
-  ];
-}
-
 export function useTransactions() {
-  const [transactions, setTransactions] = useLocalStorage<Transaction[]>("fino-transactions", seedTransactions());
+  const { user } = useAuth();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  function addTransaction(t: Omit<Transaction, "id">) {
-    setTransactions((prev) => [{ ...t, id: crypto.randomUUID() }, ...prev]);
+  const refresh = useCallback(async () => {
+    if (!user || !isSupabaseConfigured) {
+      setTransactions([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .order("date", { ascending: false });
+    if (error) setError(error.message);
+    else setTransactions(data as Transaction[]);
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  /** Returns an error message on failure, or null on success. */
+  async function addTransaction(input: TransactionInput): Promise<string | null> {
+    if (!user) return "საჭიროა ავტორიზაცია";
+    const { data, error } = await supabase
+      .from("transactions")
+      .insert({
+        type: input.type,
+        amount: input.amount,
+        category: input.category ?? null,
+        project_id: input.project_id ?? null,
+        note: input.note,
+        date: input.date,
+        user_id: user.id,
+      })
+      .select()
+      .single();
+    if (error) {
+      setError(error.message);
+      return error.message;
+    }
+    setTransactions((prev) => [data as Transaction, ...prev]);
+    return null;
   }
 
-  function removeTransaction(id: string) {
+  async function removeTransaction(id: string) {
+    const { error } = await supabase.from("transactions").delete().eq("id", id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
     setTransactions((prev) => prev.filter((t) => t.id !== id));
   }
 
-  const expenses = useMemo(
-    () => [...transactions].filter((t) => t.type === "expense").sort((a, b) => b.date.localeCompare(a.date)),
-    [transactions]
-  );
+  /** Assigns (or clears, with `projectId: null`) which project a transaction belongs to. */
+  async function updateTransactionProject(id: string, projectId: string | null) {
+    const { error } = await supabase.from("transactions").update({ project_id: projectId }).eq("id", id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, project_id: projectId } : t)));
+  }
+
+  const expenses = useMemo(() => transactions.filter((t) => t.type === "expense"), [transactions]);
 
   const monthlyTotals = useMemo(() => {
     const map = new Map<string, { income: number; expenses: number }>();
@@ -68,5 +98,16 @@ export function useTransactions() {
     return map;
   }, [expenses]);
 
-  return { transactions, expenses, addTransaction, removeTransaction, monthlyTotals, expensesByCategory };
+  return {
+    transactions,
+    expenses,
+    loading,
+    error,
+    addTransaction,
+    removeTransaction,
+    updateTransactionProject,
+    refresh,
+    monthlyTotals,
+    expensesByCategory,
+  };
 }

@@ -4,13 +4,16 @@ import { budgetCategories } from "@/data/budgetCategories";
 import { formatGEL } from "@/lib/format";
 import { useLanguage } from "@/lib/LanguageContext";
 import type { Transaction } from "@/types/transaction";
+import type { Project } from "@/types/project";
 
 interface TransactionListProps {
   expenses: Transaction[];
   onDelete: (id: string) => void;
+  projects?: Project[];
+  onAssignProject?: (transactionId: string, projectId: string | null) => void;
 }
 
-export function TransactionList({ expenses, onDelete }: TransactionListProps) {
+export function TransactionList({ expenses, onDelete, projects, onAssignProject }: TransactionListProps) {
   const { t } = useLanguage();
 
   if (expenses.length === 0) {
@@ -40,6 +43,20 @@ export function TransactionList({ expenses, onDelete }: TransactionListProps) {
               <p className="text-xs text-text-muted">
                 {category?.label} · {expense.date}
               </p>
+              {projects && onAssignProject && (
+                <select
+                  value={expense.project_id ?? ""}
+                  onChange={(e) => onAssignProject(expense.id, e.target.value || null)}
+                  className="mt-1 max-w-[9rem] rounded-md border border-border-soft bg-surface px-1.5 py-0.5 text-[11px] text-text-secondary"
+                >
+                  <option value="">{t("noProject")}</option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
             <p className="shrink-0 font-mono text-sm font-semibold tabular text-danger">
               -{formatGEL(expense.amount)}

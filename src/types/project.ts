@@ -1,6 +1,12 @@
 export interface Project {
   id: string;
+  user_id: string;
   name: string;
-  /** Optional target budget — when set, the project shows progress toward it. */
-  budget?: number;
+  budget: number | null;
+  created_at: string;
+}
+
+export interface ProjectInput {
+  name: string;
+  budget?: number | null;
 }

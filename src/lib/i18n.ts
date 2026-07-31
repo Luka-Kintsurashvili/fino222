@@ -4,69 +4,36 @@ export const translations = {
   appName: { ka: "ფინო", en: "Fino" },
   tagline: { ka: "შენი პირადი ფინანსური ასისტენტი", en: "Your personal finance assistant" },
 
-  // Bottom nav / More sheet
-  navAccounts: { ka: "მთავარი", en: "Home" },
+  // Header icons
   navGraphs: { ka: "გრაფები", en: "Graphs" },
-  navLoan: { ka: "სესხი", en: "Loan" },
-  navBudget: { ka: "ბიუჯეტი", en: "Budget" },
-  navSavings: { ka: "დანაზოგი", en: "Savings" },
-  navCalendar: { ka: "კალენდარი", en: "Calendar" },
-  navMore: { ka: "მეტი", en: "More" },
-  navInflation: { ka: "ინფლაცია", en: "Inflation" },
-  navArticles: { ka: "სტატიები", en: "Articles" },
-  navCurrency: { ka: "ვალუტა", en: "Currency" },
-  navAdvisor: { ka: "მრჩეველი", en: "Advisor" },
-  moreSheetTitle: { ka: "მეტი", en: "More" },
+  navFunds: { ka: "ფონდები", en: "Funds" },
+  chartDrawerTitle: { ka: "ფინანსური მიმოხილვა", en: "Financial overview" },
+  accountMenu: { ka: "ანგარიშის მენიუ", en: "Account menu" },
+  manageAccounts: { ka: "ბარათების მართვა", en: "Manage accounts" },
+  upcomingReminders: { ka: "მოახლოებული შეხსენებები", en: "Upcoming reminders" },
+  noRemindersYet: { ka: "ჯერ არ გაქვს შეხსენება", en: "No reminders yet" },
+  dueToday: { ka: "დღეს", en: "Due today" },
+  dueInDays: { ka: "დარჩენილია {days} დღე", en: "Due in {days} day(s)" },
+  reminderBannerIntro: { ka: "გაქვს {count} მოახლოებული შეხსენება:", en: "You have {count} upcoming reminder(s):" },
 
   // Page headers
-  accountsTitle: { ka: "მთავარი", en: "Home" },
+  accountsTitle: { ka: "საფულე", en: "Wallet" },
   accountsSubtitle: {
     ka: "შენი ანგარიშები და ხარჯები ერთ ადგილას",
     en: "All your accounts and spending in one place",
   },
-  graphsSubtitle: {
-    ka: "შემოსავალი, ხარჯები და დანაზოგი თვეების მიხედვით",
-    en: "Income, expenses, and savings by month",
-  },
-  loanTitle: { ka: "სესხი", en: "Loan" },
-  loanSubtitle: {
-    ka: "შეადარე, დაგეგმე ვადაზე ადრე დაფარვა და შეამოწმე შენი შესაძლებლობები",
-    en: "Compare offers, plan an early payoff, and check your eligibility",
-  },
-  budgetTitle: { ka: "ბიუჯეტის განკარგვა", en: "Budget Management" },
-  budgetSubtitle: {
-    ka: "აირჩიე წესი, შემდეგ თავად დაარეგულირე თითოეული კატეგორია",
-    en: "Pick a rule, then fine-tune each category yourself",
-  },
-  savingsGoalsTitle: { ka: "დანაზოგი და მიზნები", en: "Savings & Goals" },
-  savingsGoalsSubtitle: {
-    ka: "დაგეგმე დანაზოგი და თვალი ადევნე შენს მიზნებს",
-    en: "Plan your savings and track your goals",
-  },
+  navCalendar: { ka: "კალენდარი", en: "Calendar" },
   calendarTitle: { ka: "გადახდების კალენდარი", en: "Payment Calendar" },
   calendarSubtitle: { ka: "ნუ გამოტოვებ გადასახდელ თარიღებს", en: "Never miss a due date" },
-  inflationTitle: { ka: "ინფლაციის კალკულატორი", en: "Inflation Calculator" },
-  inflationSubtitle: {
-    ka: "იხილე, როგორ იცვლება ფულის მსყიდველობითი უნარი",
-    en: "See how your money's purchasing power changes over time",
-  },
-  articlesTitle: { ka: "სტატიები", en: "Articles" },
-  articlesSubtitle: {
-    ka: "ფინანსური განათლება მოკლედ და გასაგებად",
-    en: "Financial education, short and clear",
-  },
-  currencyTitle: { ka: "ვალუტის კონვერტორი", en: "Currency Converter" },
-  currencySubtitle: { ka: "რეალურ დროში კურსები", en: "Live exchange rates" },
-  advisorTitle: { ka: "ფინანსური მრჩეველი", en: "Financial Advisor" },
-  advisorSubtitle: {
-    ka: "შეაფასე შენი გეგმის რეალისტურობა",
-    en: "Check how realistic your plan is",
-  },
-  savingsPlanTab: { ka: "დანაზოგის გეგმა", en: "Savings Plan" },
-  myGoalsTab: { ka: "ჩემი მიზნები", en: "My Goals" },
-  loanComparisonTab: { ka: "სესხის შედარება", en: "Compare" },
-  loanPayoffTab: { ka: "სესხის დაფარვა", en: "Payoff" },
-  loanEligibilityTab: { ka: "სესხის უფლება", en: "Eligibility" },
+  calendarAuthGate: { ka: "გადახდების კალენდრის სანახავად საჭიროა ავტორიზაცია.", en: "Sign in to view your payment calendar." },
+  recurringPaymentTitle: { ka: "განმეორებადი გადახდა", en: "Recurring payment" },
+  paymentName: { ka: "დასახელება", en: "Name" },
+  paymentNamePlaceholder: { ka: "მაგ. ინტერნეტი", en: "e.g. Internet" },
+  dayOfMonthLabel: { ka: "თვის რიცხვი", en: "Day of month" },
+  colorTagLabel: { ka: "ფერის ტეგი", en: "Color tag" },
+  fillNameAndAmount: { ka: "შეავსე დასახელება და თანხა", en: "Fill in a name and amount" },
+  noRecurringPayments: { ka: "ჯერ არ გაქვს დამატებული განმეორებადი გადახდა", en: "No recurring payments added yet" },
+  everyMonthOnDay: { ka: "ყოველი თვის {day}", en: "Every month on the {day}" },
 
   // Login
   signIn: { ka: "შესვლა", en: "Sign In" },
@@ -94,6 +61,52 @@ export const translations = {
   delete: { ka: "წაშლა", en: "Delete" },
   back: { ka: "უკან", en: "Back" },
   loadingText: { ka: "იტვირთება...", en: "Loading..." },
+  skip: { ka: "გამოტოვება", en: "Skip" },
+  next: { ka: "შემდეგი", en: "Next" },
+  finish: { ka: "დასრულება", en: "Finish" },
+
+  // Onboarding
+  onboardingWelcomeTitle: { ka: "მოგესალმები ფინოში!", en: "Welcome to Fino!" },
+  onboardingWelcomeBody: {
+    ka: "რომ ვიხილოთ სწორი სურათი და გრაფები, დაგვეხმარე რამდენიმე ძირითადი რამის დამატებაში — დაგვჭირდება წუთი.",
+    en: "To show you accurate numbers and charts, let's add a few basics — it'll take a minute.",
+  },
+  onboardingStart: { ka: "დავიწყოთ", en: "Let's start" },
+  monthlyIncomeLabel: { ka: "თვიური შემოსავალი", en: "Monthly income" },
+  onboardingConnectTitle: { ka: "დაუკავშირე შენი ბანკი", en: "Connect your bank" },
+  onboardingConnectBody: {
+    ka: "დააკავშირე შენი ანგარიში და ფინო თავად წამოიღებს ბალანსსა და ტრანზაქციებს — ხელით შეყვანა საჭირო აღარ არის.",
+    en: "Connect your account and Fino will pull in your balance and transactions on its own — no manual entry needed.",
+  },
+  onboardingConnecting: { ka: "დაკავშირება...", en: "Connecting..." },
+  onboardingConnected: { ka: "დაკავშირებულია!", en: "Connected!" },
+  onboardingLiabilityTitle: { ka: "გაქვს ვალდებულება?", en: "Any liabilities?" },
+  onboardingLiabilityBody: {
+    ka: "სესხი ან ვალი პირისგან — ამის გარეშე წმინდა ქონება არასრული იქნება. ხელით დაამატე, ავტომატური დაკავშირება მალე დაემატება.",
+    en: "A loan or money you owe someone — without it, net worth won't be accurate. Add it manually for now; automatic tracking is coming later.",
+  },
+  onboardingDoneTitle: { ka: "მზად ხარ!", en: "You're all set!" },
+  onboardingDoneBody: {
+    ka: "შენი გრაფები და წმინდა ქონება ახლა უფრო ზუსტია. ნებისმიერ დროს შეგიძლია დაამატო მეტი.",
+    en: "Your graphs and net worth are more accurate now. You can add more anytime.",
+  },
+  onboardingFinish: { ka: "დახურვა", en: "Done" },
+
+  // TBC sync
+  syncTbc: { ka: "TBC-დან სინქრონიზაცია", en: "Sync from TBC" },
+  syncSuccess: { ka: "შემოტანილია {count} ტრანზაქცია", en: "{count} transaction(s) imported" },
+  connectTbc: { ka: "TBC ანგარიშის დაკავშირება", en: "Connect TBC account" },
+  tbcConnecting: { ka: "დაკავშირება...", en: "Connecting..." },
+  tbcConnected: { ka: "TBC ანგარიში დაკავშირებულია", en: "TBC account connected" },
+  tbcDemoNotice: {
+    ka: "დემო რეჟიმი: TBC-სთან რეალური დაკავშირება მოითხოვს ეროვნული ბანკის ლიცენზიას, ამიტომ ტრანზაქციები ახლა სიმულირებულია.",
+    en: "Demo mode: real TBC linking requires a National Bank license, so transactions shown here are simulated for now.",
+  },
+  tbcConnectError: { ka: "TBC-სთან დაკავშირება ვერ მოხერხდა", en: "Couldn't connect your TBC account" },
+  tbcCallbackWorking: { ka: "TBC ანგარიშის დადასტურება...", en: "Confirming your TBC account..." },
+  tbcCallbackSuccess: { ka: "TBC ანგარიში წარმატებით დაუკავშირდა", en: "TBC account connected successfully" },
+  tbcCallbackError: { ka: "დაკავშირება ვერ დადასტურდა", en: "Couldn't confirm the connection" },
+  backToWallet: { ka: "საფულეში დაბრუნება", en: "Back to wallet" },
 
   // Settings page
   theme: { ka: "თემა", en: "Theme" },
@@ -103,20 +116,12 @@ export const translations = {
 
   // Accounts / home tab
   totalBalance: { ka: "სულ თანხა", en: "Total balance" },
-  addAccount: { ka: "ბარათის დამატება", en: "Add card" },
-  bank: { ka: "ბანკი", en: "Bank" },
   accountNickname: { ka: "ბარათის სახელი", en: "Card nickname" },
   accountNicknamePlaceholder: { ka: "მაგ. ჩემი ბარათი", en: "e.g. My card" },
   balance: { ka: "ბალანსი", en: "Balance" },
   expenses: { ka: "ხარჯები", en: "Expenses" },
   noExpenses: { ka: "ჯერ არ არის დამატებული ხარჯი", en: "No expenses added yet" },
-  addTransaction: { ka: "ჩანაწერის დამატება", en: "Add transaction" },
-  expense: { ka: "ხარჯი", en: "Expense" },
-  income: { ka: "შემოსავალი", en: "Income" },
   amount: { ka: "თანხა", en: "Amount" },
-  category: { ka: "კატეგორია", en: "Category" },
-  note: { ka: "შენიშვნა", en: "Note" },
-  notePlaceholder: { ka: "მაგ. სუპერმარკეტი", en: "e.g. Groceries" },
   graphsTileSubtitle: { ka: "შემოსავალი, ხარჯები და დანაზოგი", en: "Income, expenses, and savings" },
   incomeByMonth: { ka: "შემოსავალი თვეების მიხედვით", en: "Income by month" },
   expensesByCategory: { ka: "ხარჯები კატეგორიების მიხედვით", en: "Expenses by category" },
@@ -144,6 +149,123 @@ export const translations = {
   deleteProject: { ka: "პროექტის წაშლა", en: "Delete project" },
   project: { ka: "პროექტი", en: "Project" },
   noProject: { ka: "პროექტის გარეშე", en: "No project" },
+  accountsAuthGate: {
+    ka: "ბარათების, ხარჯებისა და პროექტების შესანახად საჭიროა ავტორიზაცია.",
+    en: "Sign in to save your cards, expenses, and projects.",
+  },
+  projectsAuthGate: { ka: "პროექტის სანახავად საჭიროა ავტორიზაცია.", en: "Sign in to view this project." },
+
+  // Net worth
+  navNetWorth: { ka: "წმინდა ქონება", en: "Net Worth" },
+  liabilityName: { ka: "ვალდებულების სახელი", en: "Liability name" },
+  liabilityNamePlaceholder: { ka: "მაგ. სესხი TBC-ში", en: "e.g. TBC loan" },
+  totalAssetsLabel: { ka: "აქტივები", en: "Assets" },
+  totalLiabilitiesLabel: { ka: "ვალდებულებები", en: "Liabilities" },
+  liquid: { ka: "ლიკვიდური", en: "Liquid" },
+  nonliquid: { ka: "არალიკვიდური", en: "Non-liquid" },
+  assetName: { ka: "აქტივის სახელი", en: "Asset name" },
+  assetNamePlaceholder: { ka: "მაგ. ბინა", en: "e.g. Apartment" },
+  addAsset: { ka: "აქტივის დამატება", en: "Add asset" },
+  addLiability: { ka: "ვალდებულების დამატება", en: "Add liability" },
+  yourAssets: { ka: "შენი აქტივები", en: "Your assets" },
+  yourLiabilities: { ka: "შენი ვალდებულებები", en: "Your liabilities" },
+  noAssetsYet: { ka: "აქტივები ჯერ არ დამატებულა.", en: "No assets added yet." },
+  noLiabilitiesYet: { ka: "ვალდებულებები ჯერ არ დამატებულა.", en: "No liabilities added yet." },
+
+  // Transaction project assignment
+  assignToProject: { ka: "პროექტზე მიბმა", en: "Assign to project" },
+
+  // Project expense entry
+  addExpense: { ka: "ხარჯის დამატება", en: "Add expense" },
+  category: { ka: "კატეგორია", en: "Category" },
+  note: { ka: "შენიშვნა", en: "Note" },
+  notePlaceholder: { ka: "მაგ. სამშენებლო მასალები", en: "e.g. Building materials" },
+
+  // Loan comparison
+  navLoan: { ka: "სესხი", en: "Loan" },
+  loanSheetTitle: { ka: "სესხის შედარება", en: "Loan comparison" },
+  loanPrincipalLabel: { ka: "სესხის თანხა", en: "Loan amount" },
+  loanTermMonthsLabel: { ka: "ვადა (თვეები)", en: "Term (months)" },
+  loanTypeLabel: { ka: "სესხის ტიპი", en: "Loan type" },
+  loanTypeConsumer: { ka: "სამომხმარებლო", en: "Consumer" },
+  loanTypeMortgage: { ka: "იპოთეკა", en: "Mortgage" },
+  loanTypeAuto: { ka: "საავტომობილო", en: "Auto" },
+  loanTypeBusiness: { ka: "ბიზნესის", en: "Business" },
+  loanTypeMicro: { ka: "მიკრო", en: "Micro" },
+  monthlyPaymentLabel: { ka: "ყოველთვიური გადასახადი", en: "Monthly payment" },
+  totalInterestLabel: { ka: "სულ პროცენტი", en: "Total interest" },
+  totalPaidLabel: { ka: "სულ გადასახდელი", en: "Total paid" },
+  bestOfferBadge: { ka: "ყველაზე ხელსაყრელი შეთავაზება", en: "Best available offer" },
+  annualRateLabel: { ka: "წლიური განაკვეთი", en: "Annual rate" },
+  dtiLabel: { ka: "ვალდებულება/შემოსავალი (DTI)", en: "Debt-to-income (DTI)" },
+  savingsRateLabel: { ka: "დანაზოგის მაჩვენებელი", en: "Savings rate" },
+
+  // Budgeting
+  navBudget: { ka: "ბიუჯეტი", en: "Budget" },
+  budgetSheetTitle: { ka: "ბიუჯეტის განკარგვა", en: "Budget planner" },
+  budgetRuleLabel: { ka: "წესი", en: "Rule" },
+  allocatedLabel: { ka: "გადანაწილებული", en: "Allocated" },
+  perMonthSuffix: { ka: "/თვე", en: "/mo" },
+  budgetRulesCount: { ka: "{count} წესი", en: "{count} rules" },
+  banksCompared: { ka: "{count} ბანკი", en: "{count} banks" },
+
+  // Funds
+  fundsSubtitle: { ka: "დაზოგე შემოსავლიდან ყოველთვიურად, მიზნობრივად", en: "Save from your income every month, toward a target" },
+  addFund: { ka: "ფონდის დამატება", en: "Add fund" },
+  fundName: { ka: "ფონდის სახელი", en: "Fund name" },
+  fundNamePlaceholder: { ka: "მაგ. შვებულება", en: "e.g. Vacation" },
+  targetAmount: { ka: "სამიზნე თანხა", en: "Target amount" },
+  monthlyContribution: { ka: "ყოველთვიური შენატანი", en: "Monthly contribution" },
+  fixedAmount: { ka: "ფიქსირებული", en: "Fixed amount" },
+  percentOfIncome: { ka: "შემოსავლის %", en: "% of income" },
+  amountPerMonth: { ka: "თანხა თვეში", en: "Amount per month" },
+  percentPerMonth: { ka: "პროცენტი თვეში", en: "Percent per month" },
+  monthlyFixed: { ka: "თვეში {amount}", en: "{amount}/month" },
+  monthlyPercent: { ka: "შემოსავლის {percent}% თვეში", en: "{percent}% of income/month" },
+  addMoney: { ka: "თანხის დამატება", en: "Add money" },
+  noFunds: { ka: "ჯერ არ გაქვს დამატებული ფონდი", en: "No funds yet" },
+  noFundsHint: {
+    ka: "შექმენი ფონდი, მაგალითად სარეზერვო ან შვებულებისთვის, და ყოველთვიურად ზოგე მასში",
+    en: "Create a fund — like a rainy day fund or a vacation fund — and save into it every month",
+  },
+  rainyDayFundName: { ka: "სარეზერვო ფონდი", en: "Rainy day fund" },
+  rainyDaySuggestion: {
+    ka: "რეკომენდებული: {amount} (6 თვის შემოსავალი)",
+    en: "Suggested: {amount} (6 months of income)",
+  },
+  rainyDayNoIncome: {
+    ka: "შემოსავლის დასათვლელად დაამატე შემოსავლის ჩანაწერი მთავარ გვერდზე",
+    en: "Add an income transaction on Home so we can suggest a target",
+  },
+
+  // Chat assistant
+  chatTitle: { ka: "ფინო AI", en: "Fino AI" },
+  chatSubtitleHype: { ka: "დღეს გავანთოთ ✨", en: "Let's make today count ✨" },
+  chatSubtitleBalanced: { ka: "შენი ფინანსური თანაშემწე", en: "Your financial co-pilot" },
+  chatSubtitleRoast: { ka: "მზადა ხარ სიმართლისთვის?", en: "Ready for some truth?" },
+  chatModeHype: { ka: "ჰაიფი", en: "Hype" },
+  chatModeBalanced: { ka: "საშუალო", en: "Balanced" },
+  chatModeRoast: { ka: "როასტი", en: "Roast" },
+  chatPlaceholder: { ka: "დაწერე შეკითხვა...", en: "Ask me anything..." },
+  chatWelcomeHype: {
+    ka: "ჰეი! 🔥 მზად ვარ დაგეხმარო შენი ფინანსების დაპყრობაში. რას ვისაუბროთ დღეს?",
+    en: "Hey! 🔥 Ready to help you crush your finances. What's on your mind today?",
+  },
+  chatWelcomeBalanced: {
+    ka: "გამარჯობა! მე ვარ ფინო — შენი ფინანსური თანაშემწე. შემიძლია გითხრა შენი ხარჯების, დანაზოგისა და გეგმების შესახებ.",
+    en: "Hi! I'm Fino, your financial co-pilot. Ask me about your spending, savings, or plans.",
+  },
+  chatWelcomeRoast: {
+    ka: "კარგი, ვნახოთ რა გვაქვს... 😏 მზად ვარ სიმართლე გითხრა შენი ხარჯვის ჩვევებზე. მოდი, დავიწყოთ.",
+    en: "Alright, let's see what we're working with... 😏 Ready to give it to you straight. Let's go.",
+  },
+  chatErrorGeneric: {
+    ka: "ბოდიში, პასუხის მიღება ვერ მოხერხდა. სცადე ისევ.",
+    en: "Sorry, couldn't get a response. Please try again.",
+  },
+  chatSuggestion1: { ka: "როგორ ხარჯავ ამ თვეში?", en: "How am I spending this month?" },
+  chatSuggestion2: { ka: "როგორ დავზოგო მეტი?", en: "How can I save more?" },
+  chatSuggestion3: { ka: "რა არის ჩემი წმინდა ღირებულება?", en: "What's my net worth?" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

@@ -1,28 +1,49 @@
 import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 import { SubPageHeader } from "@/components/ui/SubPageHeader";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/Button";
+import { AuthGate } from "@/components/ui/AuthGate";
 import { TransactionList } from "@/components/accounts/TransactionList";
-import { AddTransactionSheet } from "@/components/accounts/AddTransactionSheet";
+import { AddExpenseSheet } from "@/components/accounts/AddExpenseSheet";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useProjects } from "@/hooks/useProjects";
+import { useAuth } from "@/lib/AuthContext";
 import { formatGEL } from "@/lib/format";
 import { useLanguage } from "@/lib/LanguageContext";
 
 export function ProjectPage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useLanguage();
-  const { expenses, addTransaction, removeTransaction } = useTransactions();
-  const { projects, removeProject } = useProjects(expenses);
-  const [addOpen, setAddOpen] = useState(false);
+  const { user, loading: authLoading } = useAuth();
+
+  if (authLoading) return null;
+  if (!user) {
+    return (
+      <div className="space-y-5">
+        <SubPageHeader title={t("projects")} />
+        <AuthGate message={t("projectsAuthGate")} />
+      </div>
+    );
+  }
+
+  return <ProjectDetail id={id} />;
+}
+
+function ProjectDetail({ id }: { id: string | undefined }) {
+  const { t } = useLanguage();
+  const { expenses, removeTransaction, addTransaction, loading: txLoading } = useTransactions();
+  const { projects, removeProject, loading: projectsLoading } = useProjects(expenses);
+  const [addExpenseOpen, setAddExpenseOpen] = useState(false);
+
+  if (txLoading || projectsLoading) return <p className="text-sm text-text-muted">{t("loadingText")}</p>;
 
   const project = projects.find((p) => p.id === id);
-  if (!project) return <Navigate to="/accounts" replace />;
+  if (!project) return <Navigate to="/wallet" replace />;
 
-  const projectExpenses = expenses.filter((e) => e.projectId === project.id);
+  const projectExpenses = expenses.filter((e) => e.project_id === project.id);
   const spent = projectExpenses.reduce((sum, e) => sum + e.amount, 0);
   const pct = project.budget ? Math.min((spent / project.budget) * 100, 100) : null;
 
@@ -46,9 +67,9 @@ export function ProjectPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-text-primary">{t("expenses")}</h2>
         <button
-          onClick={() => setAddOpen(true)}
+          onClick={() => setAddExpenseOpen(true)}
           className="flex h-8 w-8 items-center justify-center rounded-lg gradient-accent text-white"
-          aria-label={t("addTransaction")}
+          aria-label={t("addExpense")}
         >
           <Plus size={16} />
         </button>
@@ -61,12 +82,7 @@ export function ProjectPage() {
         {t("deleteProject")}
       </Button>
 
-      <AddTransactionSheet
-        open={addOpen}
-        onClose={() => setAddOpen(false)}
-        onAdd={addTransaction}
-        defaultProjectId={project.id}
-      />
+      <AddExpenseSheet open={addExpenseOpen} onClose={() => setAddExpenseOpen(false)} onAdd={addTransaction} projectId={project.id} />
     </div>
   );
 }
