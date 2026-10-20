@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
-export type TileTarget = "funds" | "calendar" | "loan" | "budget";
+export type TileTarget = "funds" | "calendar" | "loan" | "budget" | "credit";
 
 interface QuickSheetContextValue {
   target: TileTarget | null;

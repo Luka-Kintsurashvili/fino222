@@ -18,7 +18,7 @@ function daysUntil(dueDate: string): number {
 }
 
 export interface ChatAction {
-  target: "funds" | "calendar" | "loan" | "networth" | "budget";
+  target: "funds" | "calendar" | "loan" | "networth" | "budget" | "credit";
   label: string;
 }
 

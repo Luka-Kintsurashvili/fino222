@@ -207,6 +207,24 @@ export const translations = {
   allocatedLabel: { ka: "გადანაწილებული", en: "Allocated" },
   perMonthSuffix: { ka: "/თვე", en: "/mo" },
   budgetRulesCount: { ka: "{count} წესი", en: "{count} rules" },
+
+  // Credit risk check
+  navCredit: { ka: "სესხის შეფასება", en: "Loan approval estimate" },
+  creditCheckTitle: { ka: "სესხის დამტკიცების შეფასება", en: "Loan approval estimate" },
+  creditDisclaimer: {
+    ka: "ეს შეფასება დაფუძნებულია ფიქტიურ სასწავლო მონაცემებზე გაწვრთნილ მოდელზე — ეს არ არის რეალური ბანკის გადაწყვეტილება.",
+    en: "This estimate comes from a model trained on fictional course data — it is not a real bank decision.",
+  },
+  defaultProbabilityLabel: { ka: "დეფოლტის ალბათობა (12 თვეში)", en: "Default probability (12 months)" },
+  decisionAutoApprove: { ka: "სავარაუდოდ დამტკიცდება", en: "Likely approved" },
+  decisionManualReview: { ka: "საჭიროებს ხელით შემოწმებას", en: "Needs manual review" },
+  decisionDecline: { ka: "სავარაუდოდ უარი", en: "Likely declined" },
+  ptiCheckLabel: { ka: "გადასახადი/შემოსავლის თანაფარდობა (PTI)", en: "Payment-to-income (PTI)" },
+  ptiWithinLimit: { ka: "ლიმიტის ფარგლებშია", en: "Within limit" },
+  ptiExceedsLimit: { ka: "აღემატება ლიმიტს", en: "Exceeds limit" },
+  topFactorsLabel: { ka: "მთავარი ფაქტორები", en: "Top factors" },
+  increasesRisk: { ka: "ზრდის რისკს", en: "increases risk" },
+  decreasesRisk: { ka: "ამცირებს რისკს", en: "decreases risk" },
   banksCompared: { ka: "{count} ბანკი", en: "{count} banks" },
 
   // Funds

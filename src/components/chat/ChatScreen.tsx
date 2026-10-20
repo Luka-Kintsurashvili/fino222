@@ -14,6 +14,7 @@ const TARGET_ROUTES: Record<Exclude<ChatAction["target"], "networth">, string> =
   calendar: "/calendar",
   loan: "/wallet",
   budget: "/wallet",
+  credit: "/wallet",
 };
 
 const MODE_EXPRESSION: Record<ChatMode, "content" | "hype" | "roast"> = {

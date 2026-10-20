@@ -11,6 +11,7 @@ import { LoanQuickTile } from "@/components/accounts/LoanQuickTile";
 import { LoanSheet } from "@/components/loan/LoanSheet";
 import { BudgetQuickTile } from "@/components/accounts/BudgetQuickTile";
 import { BudgetSheet } from "@/components/budget/BudgetSheet";
+import { CreditCheckSheet } from "@/components/credit/CreditCheckSheet";
 import { TransactionList } from "@/components/accounts/TransactionList";
 import { ProjectList } from "@/components/accounts/ProjectList";
 import { AddProjectSheet } from "@/components/accounts/AddProjectSheet";
@@ -52,6 +53,7 @@ function AccountsContent() {
   const [addProjectOpen, setAddProjectOpen] = useState(false);
   const [loanOpen, setLoanOpen] = useState(false);
   const [budgetOpen, setBudgetOpen] = useState(false);
+  const [creditOpen, setCreditOpen] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -61,6 +63,9 @@ function AccountsContent() {
       consume();
     } else if (target === "budget") {
       setBudgetOpen(true);
+      consume();
+    } else if (target === "credit") {
+      setCreditOpen(true);
       consume();
     }
   }, [target, consume]);
@@ -182,6 +187,7 @@ function AccountsContent() {
       <AddProjectSheet open={addProjectOpen} onClose={() => setAddProjectOpen(false)} onAdd={addProject} />
       <LoanSheet open={loanOpen} onClose={() => setLoanOpen(false)} />
       <BudgetSheet open={budgetOpen} onClose={() => setBudgetOpen(false)} />
+      <CreditCheckSheet open={creditOpen} onClose={() => setCreditOpen(false)} />
     </div>
   );
 }
