@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Send, ArrowRight } from "lucide-react";
 import { FinoFace } from "@/components/ui/FinoFace";
 import { MarkdownText } from "@/components/chat/MarkdownText";
@@ -29,7 +29,17 @@ export function ChatScreen() {
   const { openSheet } = useQuickSheet();
   const { openDrawer } = useChartDrawer();
   const navigate = useNavigate();
+  const location = useLocation();
   const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prefill = (location.state as { prefillInput?: string } | null)?.prefillInput;
+    if (prefill) {
+      setInput(prefill);
+      window.history.replaceState({}, "", location.pathname);
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleActionClick(action: ChatAction) {
     if (action.target === "networth") {
