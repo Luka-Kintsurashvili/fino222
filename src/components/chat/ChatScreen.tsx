@@ -37,7 +37,7 @@ export function ChatScreen() {
       return;
     }
     navigate(TARGET_ROUTES[action.target]);
-    openSheet(action.target);
+    openSheet(action.target, action.draft);
   }
 
   const meta = CHAT_MODE_META[mode];

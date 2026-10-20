@@ -27,6 +27,12 @@ export const translations = {
   calendarSubtitle: { ka: "ნუ გამოტოვებ გადასახდელ თარიღებს", en: "Never miss a due date" },
   calendarAuthGate: { ka: "გადახდების კალენდრის სანახავად საჭიროა ავტორიზაცია.", en: "Sign in to view your payment calendar." },
   recurringPaymentTitle: { ka: "განმეორებადი გადახდა", en: "Recurring payment" },
+  draftDetectedTitle: { ka: "ფინომ შეამჩნია განმეორება", en: "Fino noticed a pattern" },
+  draftDetectedBody: {
+    ka: "ეს არის ჩანაწერი, ჯერ არ არის დამატებული — შეამოწმე დეტალები და დაამტკიცე, თუ სწორია.",
+    en: "This is a draft, not yet added — review the details and approve it if it looks right.",
+  },
+  approveAndAdd: { ka: "დამტკიცება და დამატება", en: "Approve & add" },
   paymentName: { ka: "დასახელება", en: "Name" },
   paymentNamePlaceholder: { ka: "მაგ. ინტერნეტი", en: "e.g. Internet" },
   dayOfMonthLabel: { ka: "თვის რიცხვი", en: "Day of month" },

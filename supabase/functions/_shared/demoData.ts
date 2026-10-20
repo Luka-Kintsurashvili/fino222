@@ -3,7 +3,13 @@
 // this project doesn't hold yet — see tbc-consent-start/index.ts for the real (dormant)
 // flow this stands in for until that's obtained.
 
-export const DEMO_BANK_ID = "tbc-demo";
+// Two fake bank connections, so Wallet shows balances aggregated across banks —
+// standing in for the "every bank in one place" pitch until real multi-bank Open
+// Banking access exists (no such API is available today, for anyone, in Georgia).
+export const DEMO_BANKS = [
+  { bankId: "tbc", nickname: "დემო ანგარიში", balance: 2450 },
+  { bankId: "bog", nickname: "დემო ანგარიში", balance: 1780 },
+] as const;
 
 interface DemoTransaction {
   type: "income" | "expense";

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { CircleAlert } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CircleAlert, Sparkles } from "lucide-react";
 import { FormSheet } from "@/components/ui/FormSheet";
 import { TextField } from "@/components/ui/TextField";
 import { NumberField } from "@/components/ui/NumberField";
@@ -7,14 +7,17 @@ import { Button } from "@/components/ui/Button";
 import { tagColors } from "@/data/tagColors";
 import { useLanguage } from "@/lib/LanguageContext";
 import type { PaymentInput } from "@/types/payment";
+import type { RecurringPaymentDraft } from "@/lib/QuickSheetContext";
 
 interface AddPaymentSheetProps {
   open: boolean;
   onClose: () => void;
   onAdd: (input: PaymentInput) => Promise<string | null>;
+  /** Pre-fills the form from a Fino-detected suggestion — never saved until the user reviews and hits Save. */
+  draft?: RecurringPaymentDraft | null;
 }
 
-export function AddPaymentSheet({ open, onClose, onAdd }: AddPaymentSheetProps) {
+export function AddPaymentSheet({ open, onClose, onAdd, draft }: AddPaymentSheetProps) {
   const { t } = useLanguage();
   const [name, setName] = useState("");
   const [amount, setAmount] = useState(50);
@@ -22,6 +25,14 @@ export function AddPaymentSheet({ open, onClose, onAdd }: AddPaymentSheetProps) 
   const [color, setColor] = useState(tagColors[0].value);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (open && draft) {
+      setName(draft.name);
+      setAmount(draft.amount);
+      setDay(draft.day_of_month);
+    }
+  }, [open, draft]);
 
   function handleClose() {
     setFormError(null);
@@ -49,7 +60,13 @@ export function AddPaymentSheet({ open, onClose, onAdd }: AddPaymentSheetProps) 
   }
 
   return (
-    <FormSheet open={open} title={t("recurringPaymentTitle")} onClose={handleClose}>
+    <FormSheet open={open} title={draft ? t("draftDetectedTitle") : t("recurringPaymentTitle")} onClose={handleClose}>
+      {draft && (
+        <div className="flex items-start gap-2 rounded-xl border border-accent/30 bg-accent-soft px-3.5 py-2.5 text-xs text-text-secondary">
+          <Sparkles size={14} className="mt-0.5 shrink-0 text-accent" />
+          <p>{t("draftDetectedBody")}</p>
+        </div>
+      )}
       <TextField label={t("paymentName")} value={name} onChange={setName} placeholder={t("paymentNamePlaceholder")} />
       <NumberField label={t("amount")} value={amount} onChange={setAmount} suffix="₾" step={10} />
       <NumberField label={t("dayOfMonthLabel")} value={day} onChange={setDay} min={1} max={31} />
@@ -74,7 +91,7 @@ export function AddPaymentSheet({ open, onClose, onAdd }: AddPaymentSheetProps) 
         </div>
       )}
       <Button className="w-full" onClick={handleSubmit} disabled={submitting}>
-        {submitting ? t("saving") : t("save")}
+        {submitting ? t("saving") : draft ? t("approveAndAdd") : t("save")}
       </Button>
     </FormSheet>
   );

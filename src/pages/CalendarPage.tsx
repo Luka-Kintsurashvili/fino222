@@ -10,7 +10,7 @@ import { buildMonthGrid, weekdayLabels } from "@/lib/calendar";
 import { useAuth } from "@/lib/AuthContext";
 import { usePayments } from "@/hooks/usePayments";
 import { useLanguage } from "@/lib/LanguageContext";
-import { useQuickSheet } from "@/lib/QuickSheetContext";
+import { useQuickSheet, type RecurringPaymentDraft } from "@/lib/QuickSheetContext";
 
 export function CalendarPage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,10 +33,18 @@ function CalendarView() {
   const { payments, loading, addPayment, deletePayment } = usePayments();
   const [cursor, setCursor] = useState(() => new Date());
   const [open, setOpen] = useState(false);
-  const { target, consume } = useQuickSheet();
+  const [sheetDraft, setSheetDraft] = useState<RecurringPaymentDraft | null>(null);
+  const { target, draft, consume } = useQuickSheet();
 
   useEffect(() => {
-    if (target === "calendar") consume();
+    if (target === "calendar") {
+      if (draft) {
+        setSheetDraft(draft);
+        setOpen(true);
+      }
+      consume();
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [target, consume]);
 
   const year = cursor.getFullYear();
@@ -153,7 +161,15 @@ function CalendarView() {
           ))}
       </div>
 
-      <AddPaymentSheet open={open} onClose={() => setOpen(false)} onAdd={addPayment} />
+      <AddPaymentSheet
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          setSheetDraft(null);
+        }}
+        onAdd={addPayment}
+        draft={sheetDraft}
+      />
     </div>
   );
 }

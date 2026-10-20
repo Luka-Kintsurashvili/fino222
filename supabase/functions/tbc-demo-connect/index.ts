@@ -1,14 +1,16 @@
-// Fino TBC connection — SIMULATED.
-// Real TBC Open Banking (AIS) access requires a National Bank of Georgia AISP license,
+// Fino bank connection — SIMULATED, multi-bank.
+// Real Open Banking (AIS) access requires a National Bank of Georgia AISP license,
 // which this project doesn't hold yet (see tbc-consent-start/index.ts for the real,
-// currently-dormant OAuth+consent flow this replaces). This version just marks the
-// connection active instantly and seeds a demo bank account, so bank-linked features
-// can be demonstrated today and swapped for the real flow once licensed.
+// currently-dormant OAuth+consent flow this replaces) — and no API exists today, for
+// anyone, to aggregate real balances across multiple Georgian banks in one place.
+// This version just marks the connection active instantly and seeds demo accounts at
+// TBC and BOG (see _shared/demoData.ts's DEMO_BANKS), so the "every bank in one place"
+// pitch can be demonstrated today and swapped for real multi-bank access once licensed.
 // Deploy: supabase functions deploy tbc-demo-connect
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders, jsonError, jsonOk } from "../_shared/tbcClient.ts";
-import { DEMO_BANK_ID } from "../_shared/demoData.ts";
+import { DEMO_BANKS } from "../_shared/demoData.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -34,21 +36,23 @@ Deno.serve(async (req: Request) => {
     });
     if (upsertError) return jsonError(`Failed to store connection: ${upsertError.message}`, 500);
 
-    const { data: existingAccount } = await supabase
-      .from("bank_accounts")
-      .select("id")
-      .eq("bank_id", DEMO_BANK_ID)
-      .maybeSingle();
+    for (const bank of DEMO_BANKS) {
+      const { data: existingAccount } = await supabase
+        .from("bank_accounts")
+        .select("id")
+        .eq("bank_id", bank.bankId)
+        .maybeSingle();
 
-    if (!existingAccount) {
-      const { error: insertError } = await supabase.from("bank_accounts").insert({
-        user_id: user.id,
-        bank_id: DEMO_BANK_ID,
-        nickname: "TBC ბანკი (დემო)",
-        balance: 2450,
-        last4: String(Math.floor(1000 + Math.random() * 9000)),
-      });
-      if (insertError) return jsonError(`Failed to seed demo account: ${insertError.message}`, 500);
+      if (!existingAccount) {
+        const { error: insertError } = await supabase.from("bank_accounts").insert({
+          user_id: user.id,
+          bank_id: bank.bankId,
+          nickname: bank.nickname,
+          balance: bank.balance,
+          last4: String(Math.floor(1000 + Math.random() * 9000)),
+        });
+        if (insertError) return jsonError(`Failed to seed demo account (${bank.bankId}): ${insertError.message}`, 500);
+      }
     }
 
     return jsonOk({ status: "active" });

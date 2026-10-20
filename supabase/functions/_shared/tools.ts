@@ -7,12 +7,15 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { compareLoanOffers, type LoanType } from "./loanMath.ts";
 import { BUDGET_RULES, seedAmountsFromRule } from "./budgetMath.ts";
 import { scoreApplicant, type ApplicantInput, type Region, type EmploymentType, type CreditHistory, type LoanCurrency } from "./creditRisk.ts";
+import { detectRecurringPayments } from "./recurringDetect.ts";
 
 export type TileTarget = "funds" | "calendar" | "loan" | "networth" | "budget" | "credit";
 
 export interface ChatAction {
   target: TileTarget;
   label: string;
+  /** A drafted recurring-payment suggestion for the user to review and approve — never auto-saved. */
+  draft?: { name: string; amount: number; day_of_month: number };
 }
 
 export interface ToolResult {
@@ -261,6 +264,33 @@ async function checkLoanApprovalHandler(_supabase: SupabaseClient, _userId: stri
   };
 }
 
+async function detectRecurringPaymentsHandler(supabase: SupabaseClient, userId: string, _input: Record<string, unknown>): Promise<ToolResult> {
+  const { data: expenses, error: txError } = await supabase
+    .from("transactions")
+    .select("note, amount, date")
+    .eq("type", "expense");
+  if (txError) return { summary: `Error reading transactions: ${txError.message}` };
+
+  const { data: payments, error: payError } = await supabase.from("calendar_payments").select("name").eq("user_id", userId);
+  if (payError) return { summary: `Error reading existing recurring payments: ${payError.message}` };
+
+  const candidates = detectRecurringPayments(expenses ?? [], (payments ?? []).map((p) => p.name));
+
+  if (candidates.length === 0) {
+    return { summary: "No recurring payment pattern was found in the user's transaction history (needs the same note, a similar amount, and a similar day of month across at least 2 different months)." };
+  }
+
+  const top = candidates[0];
+  return {
+    summary: `Found a likely recurring payment: "${top.name}", about ${top.amount} GEL, seen on roughly day ${top.day_of_month} of ${top.months_seen} different months. This is a DRAFT — nothing has been saved. The user must review and approve it themselves.`,
+    action: {
+      target: "calendar",
+      label: "Review & approve",
+      draft: { name: top.name, amount: top.amount, day_of_month: top.day_of_month },
+    },
+  };
+}
+
 export const TOOLS: ToolDefinition[] = [
   {
     name: "add_calendar_reminder",
@@ -393,6 +423,13 @@ export const TOOLS: ToolDefinition[] = [
       required: ["monthly_income_gel", "loan_amount", "loan_term_months"],
     },
     handler: checkLoanApprovalHandler,
+  },
+  {
+    name: "detect_recurring_payments",
+    description:
+      "Scans the user's own transaction history for a payment that repeats (same note, similar amount, similar day of month) across at least 2 different months — like rent or a subscription — and are not already tracked as a recurring bill. Use this when the user asks Fino to check their spending for recurring payments, or asks whether anything looks like a regular bill. This only DRAFTS a suggestion for the user to review and approve themselves — it never saves anything automatically.",
+    parameters: { type: "OBJECT", properties: {} },
+    handler: detectRecurringPaymentsHandler,
   },
 ];
 
