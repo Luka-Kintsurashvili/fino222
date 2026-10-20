@@ -11,6 +11,7 @@ import { LoanQuickTile } from "@/components/accounts/LoanQuickTile";
 import { LoanSheet } from "@/components/loan/LoanSheet";
 import { BudgetQuickTile } from "@/components/accounts/BudgetQuickTile";
 import { BudgetSheet } from "@/components/budget/BudgetSheet";
+import { CreditQuickTile } from "@/components/accounts/CreditQuickTile";
 import { CreditCheckSheet } from "@/components/credit/CreditCheckSheet";
 import { TransactionList } from "@/components/accounts/TransactionList";
 import { ProjectList } from "@/components/accounts/ProjectList";
@@ -132,6 +133,7 @@ function AccountsContent() {
             <CalendarQuickTile />
             <LoanQuickTile onClick={() => setLoanOpen(true)} />
             <BudgetQuickTile onClick={() => setBudgetOpen(true)} />
+            <CreditQuickTile onClick={() => setCreditOpen(true)} />
           </div>
 
           <div className="flex items-center justify-between">
