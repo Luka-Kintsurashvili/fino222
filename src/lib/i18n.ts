@@ -56,6 +56,7 @@ export const translations = {
   profile: { ka: "პროფილი", en: "Profile" },
   security: { ka: "უსაფრთხოება", en: "Security" },
   notifications: { ka: "შეტყობინებები", en: "Notifications" },
+  noNotifications: { ka: "ახალი შეტყობინებები არ არის", en: "No new notifications" },
   settings: { ka: "პარამეტრები", en: "Settings" },
   logout: { ka: "გასვლა", en: "Log out" },
   login: { ka: "შესვლა", en: "Log in" },

@@ -45,13 +45,13 @@ const CREDIT_HISTORIES: { value: CreditHistory; labelKey: TranslationKey }[] = [
 function ChoiceGrid<T extends string>({ options, value, onChange }: { options: { value: T; labelKey: TranslationKey }[]; value: T; onChange: (v: T) => void }) {
   const { t } = useLanguage();
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       {options.map((opt) => (
         <button
           key={opt.value}
           type="button"
           onClick={() => onChange(opt.value)}
-          className={`rounded-xl border px-2 py-2 text-xs font-medium transition-colors ${
+          className={`rounded-xl border px-2 py-2.5 text-center text-[11px] font-medium leading-tight transition-colors ${
             value === opt.value ? "border-accent/50 bg-accent-soft text-text-primary" : "border-border bg-surface text-text-secondary hover:border-accent/30"
           }`}
         >
@@ -141,7 +141,7 @@ export function LoanSheet({ open, onClose, initialMode = "compare" }: LoanSheetP
             key={m}
             type="button"
             onClick={() => setMode(m)}
-            className={`rounded-lg px-2 py-2 text-xs font-semibold transition-all ${
+            className={`rounded-lg px-2 py-2 text-[11px] font-semibold leading-tight transition-all ${
               mode === m ? "gradient-accent text-white shadow-md" : "text-text-secondary hover:text-text-primary"
             }`}
           >

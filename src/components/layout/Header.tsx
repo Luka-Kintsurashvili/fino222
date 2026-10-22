@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Wallet } from "lucide-react";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
+import { NotificationsPanel } from "@/components/layout/NotificationsPanel";
 import { FinoMark } from "@/components/ui/FinoMark";
 import { useLanguage } from "@/lib/LanguageContext";
 
@@ -21,6 +22,7 @@ export function Header() {
           >
             <Wallet size={16} />
           </Link>
+          <NotificationsPanel />
           <ProfileMenu />
         </div>
       </div>
