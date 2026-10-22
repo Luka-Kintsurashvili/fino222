@@ -1,11 +1,15 @@
-// Fino TBC sync — SIMULATED (see tbc-demo-connect/index.ts and tbc-sync/index.ts for context).
-// Populates a stable 3-month history the first time, then adds one fresh transaction
-// on every subsequent sync so repeated syncing still feels meaningful.
+// Fino TBC sync — mixed real + simulated (see tbc-demo-connect/index.ts for context).
+// Pulls the TBC mock's real (small, fixed) transaction list once, and supplements it with our
+// own richer deterministic 3-month categorized history (_shared/demoData.ts) that the real
+// mock doesn't provide — needed for budgeting, DTI and recurring-bill detection. Every sync
+// after the first just adds one more fixed "fresh activity" row, so repeated syncing still
+// feels meaningful without re-importing what's already there.
 // Deploy: supabase functions deploy tbc-demo-sync
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders, jsonError, jsonOk } from "../_shared/tbcClient.ts";
 import { generateSeedTransactions, generateFreshTransaction } from "../_shared/demoData.ts";
+import { fetchTbcMockBankData } from "../_shared/tbcMockClient.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -39,7 +43,31 @@ Deno.serve(async (req: Request) => {
       .select("id", { count: "exact", head: true })
       .like("external_id", "demo-seed-%");
 
-    const rows = (seedCount ?? 0) > 0 ? [generateFreshTransaction()] : [...generateSeedTransactions(), generateFreshTransaction()];
+    const isFirstSync = (seedCount ?? 0) === 0;
+    const rows = isFirstSync ? [...generateSeedTransactions(), generateFreshTransaction()] : [generateFreshTransaction()];
+
+    if (isFirstSync) {
+      try {
+        const mock = await fetchTbcMockBankData();
+        for (const [accountId, txns] of Object.entries(mock.transactionsByAccount)) {
+          for (const t of txns) {
+            rows.push({
+              type: t.amount >= 0 ? "income" : "expense",
+              amount: Math.abs(t.amount),
+              category: null,
+              note: t.note,
+              date: t.bookingDate,
+              external_id: `tbc-mock-${accountId}-${t.transactionId}`,
+            });
+          }
+        }
+      } catch (e) {
+        // The mock does simulate rare outages — fall through with just our own generated data
+        // rather than fail the whole sync over a flaky third-party service.
+        console.error("TBC mock transactions unreachable, continuing with simulated data only:", e);
+      }
+    }
+
     const withUser = rows.map((r) => ({ ...r, user_id: user.id }));
 
     const { error: insertError } = await supabase
