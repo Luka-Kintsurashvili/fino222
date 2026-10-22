@@ -142,6 +142,13 @@ async function getTransactions(accessToken: string, consentId: string, accountId
   }));
 }
 
+/** The single account Fino represents as "TBC" to the user (we only show one TBC card, not
+ * the mock customer's full multi-currency account list) — kept as one function so connect and
+ * sync always agree on which account's data to use. */
+export function pickPrimaryAccount(accounts: MockAccount[]): MockAccount | undefined {
+  return accounts.find((a) => a.currency === "GEL") ?? accounts[0];
+}
+
 /** Runs the full real Open Banking exchange against the mock and returns the fixed demo customer's accounts + transactions. Throws on any failure — callers should fall back to simulated data rather than leave the user stuck (the mock does simulate rare outages). */
 export async function fetchTbcMockBankData(): Promise<MockBankData> {
   const consentId = await createConsent();

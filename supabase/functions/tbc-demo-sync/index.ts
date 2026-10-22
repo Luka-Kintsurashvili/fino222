@@ -9,7 +9,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders, jsonError, jsonOk } from "../_shared/tbcClient.ts";
 import { generateSeedTransactions, generateFreshTransaction } from "../_shared/demoData.ts";
-import { fetchTbcMockBankData } from "../_shared/tbcMockClient.ts";
+import { fetchTbcMockBankData, pickPrimaryAccount } from "../_shared/tbcMockClient.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -49,17 +49,19 @@ Deno.serve(async (req: Request) => {
     if (isFirstSync) {
       try {
         const mock = await fetchTbcMockBankData();
-        for (const [accountId, txns] of Object.entries(mock.transactionsByAccount)) {
-          for (const t of txns) {
-            rows.push({
-              type: t.amount >= 0 ? "income" : "expense",
-              amount: Math.abs(t.amount),
-              category: null,
-              note: t.note,
-              date: t.bookingDate,
-              external_id: `tbc-mock-${accountId}-${t.transactionId}`,
-            });
-          }
+        const primaryAccount = pickPrimaryAccount(mock.accounts);
+        // Only the one account Fino actually shows as "TBC" (see tbc-demo-connect) — the mock
+        // customer's other, unrepresented accounts must not silently add duplicate income/expenses.
+        const txns = primaryAccount ? (mock.transactionsByAccount[primaryAccount.resourceId] ?? []) : [];
+        for (const t of txns) {
+          rows.push({
+            type: t.amount >= 0 ? "income" : "expense",
+            amount: Math.abs(t.amount),
+            category: null,
+            note: t.note,
+            date: t.bookingDate,
+            external_id: `tbc-mock-${primaryAccount!.resourceId}-${t.transactionId}`,
+          });
         }
       } catch (e) {
         // The mock does simulate rare outages — fall through with just our own generated data

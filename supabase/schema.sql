@@ -138,7 +138,8 @@ create table if not exists public.bank_accounts (
   nickname text not null,
   balance numeric not null default 0,
   last4 text not null default '0000',
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  unique (user_id, bank_id)
 );
 
 alter table public.bank_accounts enable row level security;

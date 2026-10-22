@@ -43,7 +43,7 @@ export function AccountsPage() {
 
 function AccountsContent() {
   const { t } = useLanguage();
-  const { accounts, totalBalance, loading: accountsLoading } = useAccounts();
+  const { accounts, totalBalance, loading: accountsLoading, refresh: refreshAccounts } = useAccounts();
   const { expenses, removeTransaction, updateTransactionProject, refresh: refreshTransactions, loading: txLoading } = useTransactions();
   const { projects, addProject, spentByProject, loading: projectsLoading } = useProjects(expenses);
   const { status: tbcStatus, connect: connectTbc, sync: syncTbc } = useTbcConnection();
@@ -79,7 +79,11 @@ function AccountsContent() {
     setSyncing(true);
     const error = await connectTbc();
     setSyncing(false);
-    if (error) setSyncMessage({ type: "error", text: error });
+    if (error) {
+      setSyncMessage({ type: "error", text: error });
+      return;
+    }
+    await refreshAccounts();
   }
 
   async function handleSync() {
@@ -114,7 +118,11 @@ function AccountsContent() {
             <p className="mt-1.5 text-3xl font-bold tabular">{formatGEL(totalBalance)}</p>
           </button>
 
-          <AccountCardCarousel accounts={accounts} onConnectClick={tbcConnected ? handleSync : handleConnect} />
+          <AccountCardCarousel
+            accounts={accounts}
+            onConnectClick={tbcConnected ? handleSync : handleConnect}
+            connecting={syncing}
+          />
 
           {tbcConnected && (
             <div className="flex items-start gap-2 rounded-xl border border-accent/20 bg-accent/5 px-3.5 py-2.5 text-xs text-text-secondary">

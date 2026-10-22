@@ -7,9 +7,10 @@ import { useLanguage } from "@/lib/LanguageContext";
 interface AccountCardCarouselProps {
   accounts: BankAccount[];
   onConnectClick: () => void;
+  connecting?: boolean;
 }
 
-export function AccountCardCarousel({ accounts, onConnectClick }: AccountCardCarouselProps) {
+export function AccountCardCarousel({ accounts, onConnectClick, connecting }: AccountCardCarouselProps) {
   const { t } = useLanguage();
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -43,7 +44,8 @@ export function AccountCardCarousel({ accounts, onConnectClick }: AccountCardCar
         <button
           type="button"
           onClick={onConnectClick}
-          className="flex h-48 w-full shrink-0 grow-0 basis-full snap-center flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-border text-text-muted transition-colors hover:border-accent/50 hover:text-accent"
+          disabled={connecting}
+          className="flex h-48 w-full shrink-0 grow-0 basis-full snap-center flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-border text-text-muted transition-colors hover:border-accent/50 hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface">
             <Link2 size={20} />

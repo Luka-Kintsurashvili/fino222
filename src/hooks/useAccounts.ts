@@ -56,5 +56,5 @@ export function useAccounts() {
 
   const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
 
-  return { accounts, loading, error, addAccount, removeAccount, totalBalance };
+  return { accounts, loading, error, addAccount, removeAccount, totalBalance, refresh };
 }
