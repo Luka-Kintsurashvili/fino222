@@ -1,13 +1,13 @@
-// Fino AI assistant — calls Gemini server-side so the API key never reaches the client.
-// Uses Gemini's function calling to let the assistant actually take actions (see _shared/tools.ts).
+// Fino AI assistant — calls OpenAI server-side so the API key never reaches the client.
+// Uses OpenAI's function calling to let the assistant actually take actions (see _shared/tools.ts).
 // Deploy: supabase functions deploy chat
-// Configure: supabase secrets set GEMINI_API_KEY=your-key-here
+// Configure: supabase secrets set OPENAI_API_KEY=your-key-here
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { TOOLS, getTool, type ChatAction } from "../_shared/tools.ts";
 
-const MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-3.6-flash";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+const MODEL = Deno.env.get("OPENAI_MODEL") || "gpt-6-luna";
+const OPENAI_URL = (Deno.env.get("OPENAI_BASE_URL") || "https://api.openai.com/v1") + "/chat/completions";
 const FETCH_TIMEOUT_MS = 25000;
 const MAX_TOOL_ITERATIONS = 4;
 
@@ -33,15 +33,17 @@ interface FinancialSnapshot {
   liabilitiesTotal?: number;
 }
 
-interface GeminiPart {
-  text?: string;
-  functionCall?: { name: string; args?: Record<string, unknown> };
-  functionResponse?: { name: string; response: Record<string, unknown> };
+interface OpenAiToolCall {
+  id: string;
+  type: "function";
+  function: { name: string; arguments: string };
 }
 
-interface GeminiContent {
-  role: "user" | "model";
-  parts: GeminiPart[];
+interface OpenAiMessage {
+  role: "system" | "user" | "assistant" | "tool";
+  content?: string | null;
+  tool_calls?: OpenAiToolCall[];
+  tool_call_id?: string;
 }
 
 const MODE_PERSONA: Record<Mode, string> = {
@@ -129,27 +131,45 @@ async function fetchWithTimeout(url: string, init: RequestInit, label: string): 
   }
 }
 
-async function callGemini(apiKey: string, system: string, contents: GeminiContent[]) {
+// Tool schemas are authored in a Gemini-style OpenAPI subset (uppercase types, e.g. "OBJECT"/"STRING")
+// in _shared/tools.ts — convert to standard lowercase JSON Schema for OpenAI's function-calling format.
+function toJsonSchema(schema: unknown): unknown {
+  if (schema == null || typeof schema !== "object") return schema;
+  const { type, properties, nullable: _nullable, ...rest } = schema as Record<string, unknown>;
+  const converted: Record<string, unknown> = { ...rest };
+  if (typeof type === "string") converted.type = type.toLowerCase();
+  if (properties && typeof properties === "object") {
+    converted.properties = Object.fromEntries(
+      Object.entries(properties as Record<string, unknown>).map(([k, v]) => [k, toJsonSchema(v)])
+    );
+  }
+  return converted;
+}
+
+const OPENAI_TOOLS = TOOLS.map((t) => ({
+  type: "function" as const,
+  function: { name: t.name, description: t.description, parameters: toJsonSchema(t.parameters) },
+}));
+
+async function callOpenAI(apiKey: string, messages: OpenAiMessage[]) {
   const requestBody = {
-    systemInstruction: { parts: [{ text: system }] },
-    contents,
-    tools: [{ functionDeclarations: TOOLS.map((t) => ({ name: t.name, description: t.description, parameters: t.parameters })) }],
-    generationConfig: {
-      maxOutputTokens: 2048,
-      // Gemini 3.x reasoning tokens count against maxOutputTokens (Flash-tier models can't fully disable
-      // thinking), so keep it low to leave room for the actual visible reply instead of burning the budget.
-      thinkingConfig: { thinkingLevel: "low" },
-    },
+    model: MODEL,
+    messages,
+    tools: OPENAI_TOOLS,
+    max_completion_tokens: 2048,
+    // gpt-6-luna (and other reasoning-tier models) reject tool calls on /v1/chat/completions
+    // unless reasoning is explicitly turned off — otherwise it 400s even with no effort set.
+    reasoning_effort: "none",
   };
 
   return await fetchWithTimeout(
-    GEMINI_URL,
+    OPENAI_URL,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify(requestBody),
     },
-    "Gemini request"
+    "OpenAI request"
   );
 }
 
@@ -185,9 +205,9 @@ Deno.serve(async (req: Request) => {
     if (memoryError) console.error("Failed to load user_memory:", memoryError.message);
     const memoryFacts = (memoryRows ?? []).map((r) => r.fact as string);
 
-    const apiKey = Deno.env.get("GEMINI_API_KEY");
+    const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "GEMINI_API_KEY is not configured on the server." }), {
+      return new Response(JSON.stringify({ error: "OPENAI_API_KEY is not configured on the server." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -209,29 +229,29 @@ Deno.serve(async (req: Request) => {
     }
 
     const system = buildSystemPrompt(mode, snapshot, memoryFacts);
-    let contents: GeminiContent[] = messages.map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.text }],
-    }));
+    let convo: OpenAiMessage[] = [
+      { role: "system", content: system },
+      ...messages.map((m) => ({ role: (m.role === "assistant" ? "assistant" : "user") as "assistant" | "user", content: m.text })),
+    ];
 
     let finalText: string | undefined;
     let accumulatedText = "";
     let lastAction: ChatAction | undefined;
 
     for (let iteration = 0; iteration < MAX_TOOL_ITERATIONS; iteration++) {
-      console.log(`Calling Gemini model "${MODEL}" (mode=${mode}, iteration=${iteration}) for user ${user.id}...`);
+      console.log(`Calling OpenAI model "${MODEL}" (mode=${mode}, iteration=${iteration}) for user ${user.id}...`);
       const startedAt = Date.now();
 
       let res: Response;
       try {
-        res = await callGemini(apiKey, system, contents);
+        res = await callOpenAI(apiKey, convo);
       } catch (apiError) {
         const isTimeout = apiError instanceof Error && apiError.message.includes("timed out");
         return new Response(
           JSON.stringify({
             error: isTimeout
-              ? `Timed out waiting for Gemini's API after ${FETCH_TIMEOUT_MS}ms.`
-              : `Error calling Gemini: ${apiError instanceof Error ? apiError.message : String(apiError)}`,
+              ? `Timed out waiting for OpenAI's API after ${FETCH_TIMEOUT_MS}ms.`
+              : `Error calling OpenAI: ${apiError instanceof Error ? apiError.message : String(apiError)}`,
           }),
           { status: isTimeout ? 504 : 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
@@ -239,38 +259,41 @@ Deno.serve(async (req: Request) => {
 
       if (!res.ok) {
         const errText = await res.text();
-        console.error(`Gemini call failed after ${Date.now() - startedAt}ms (${res.status}):`, errText);
-        return new Response(JSON.stringify({ error: `Error calling Gemini (${res.status}): ${errText}` }), {
+        console.error(`OpenAI call failed after ${Date.now() - startedAt}ms (${res.status}):`, errText);
+        return new Response(JSON.stringify({ error: `Error calling OpenAI (${res.status}): ${errText}` }), {
           status: res.status,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
       const data = await res.json();
-      const candidate = data?.candidates?.[0];
-      const parts: GeminiPart[] = candidate?.content?.parts ?? [];
-      console.log(`Gemini responded after ${Date.now() - startedAt}ms, finishReason=${candidate?.finishReason}`);
+      const choice = data?.choices?.[0];
+      const message = choice?.message;
+      console.log(`OpenAI responded after ${Date.now() - startedAt}ms, finishReason=${choice?.finish_reason}`);
 
-      // Gemini can return a partial text answer alongside a functionCall in the same turn —
+      // OpenAI can return a partial text answer alongside tool_calls in the same turn —
       // accumulate it now so it isn't lost once we loop back in for the tool result.
-      const textInThisTurn = parts
-        .map((p) => p.text ?? "")
-        .join("");
-      if (textInThisTurn) accumulatedText += (accumulatedText ? " " : "") + textInThisTurn;
+      if (typeof message?.content === "string" && message.content) {
+        accumulatedText += (accumulatedText ? " " : "") + message.content;
+      }
 
-      const functionCallParts = parts.filter((p) => p.functionCall);
+      const toolCalls: OpenAiToolCall[] = message?.tool_calls ?? [];
 
-      if (functionCallParts.length > 0) {
-        const functionResponseParts: GeminiPart[] = [];
-        for (const part of functionCallParts) {
-          const name = part.functionCall!.name;
-          const args = part.functionCall!.args ?? {};
+      if (toolCalls.length > 0) {
+        convo = [...convo, { role: "assistant", content: message.content ?? null, tool_calls: toolCalls }];
+        for (const call of toolCalls) {
+          const name = call.function?.name;
+          let args: Record<string, unknown> = {};
+          try {
+            args = call.function?.arguments ? JSON.parse(call.function.arguments) : {};
+          } catch {
+            args = {};
+          }
           const tool = getTool(name);
           const result = tool ? await tool.handler(supabase, user.id, args) : { summary: `Error: unknown tool "${name}"` };
           if (result.action) lastAction = result.action;
-          functionResponseParts.push({ functionResponse: { name, response: { result: result.summary } } });
+          convo.push({ role: "tool", tool_call_id: call.id, content: result.summary });
         }
-        contents = [...contents, { role: "model", parts }, { role: "user", parts: functionResponseParts }];
         continue;
       }
 
