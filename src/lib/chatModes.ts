@@ -11,8 +11,6 @@ interface ChatModeMeta {
   welcomeKey: TranslationKey;
 }
 
-export const CHAT_MODES: ChatMode[] = ["hype", "balanced", "roast"];
-
 export const CHAT_MODE_META: Record<ChatMode, ChatModeMeta> = {
   hype: {
     icon: Zap,

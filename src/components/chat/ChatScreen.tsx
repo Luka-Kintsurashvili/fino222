@@ -7,7 +7,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { useFinoChat, type ChatAction } from "@/hooks/useFinoChat";
 import { useQuickSheet } from "@/lib/QuickSheetContext";
 import { useChartDrawer } from "@/lib/ChartDrawerContext";
-import { CHAT_MODES, CHAT_MODE_META, type ChatMode } from "@/lib/chatModes";
+import { CHAT_MODE_META, type ChatMode } from "@/lib/chatModes";
 
 const TARGET_ROUTES: Record<Exclude<ChatAction["target"], "networth">, string> = {
   funds: "/funds",
@@ -25,7 +25,7 @@ const MODE_EXPRESSION: Record<ChatMode, "content" | "hype" | "roast"> = {
 
 export function ChatScreen() {
   const { t } = useLanguage();
-  const { mode, switchMode, messages, historyLoaded, input, setInput, loading, error, sendMessage, showSuggestions } = useFinoChat();
+  const { mode, messages, historyLoaded, input, setInput, loading, error, sendMessage, showSuggestions } = useFinoChat();
   const { openSheet } = useQuickSheet();
   const { openDrawer } = useChartDrawer();
   const navigate = useNavigate();
@@ -75,26 +75,6 @@ export function ChatScreen() {
 
       <div className="relative mb-1 flex items-center justify-between gap-2.5">
         <p className="text-[11px] font-medium text-text-muted transition-colors duration-300">{t(meta.subtitleKey)}</p>
-      </div>
-
-      <div className="relative mb-3 flex items-center gap-1.5">
-        {CHAT_MODES.map((key) => {
-          const m = CHAT_MODE_META[key];
-          const ModeIcon = m.icon;
-          const active = key === mode;
-          return (
-            <button
-              key={key}
-              onClick={() => switchMode(key)}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-                active ? `bg-gradient-to-br ${m.gradient} text-white shadow-md` : "border border-border bg-surface text-text-secondary hover:border-accent/50"
-              }`}
-            >
-              <ModeIcon size={12} />
-              {t(m.titleKey)}
-            </button>
-          );
-        })}
       </div>
 
       <div className="relative flex-1 space-y-5 overflow-y-auto pb-3">

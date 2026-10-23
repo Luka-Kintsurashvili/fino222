@@ -36,7 +36,7 @@ const NON_CONVERSATION_IDS = new Set(["welcome", "reminders-banner"]);
 export function useFinoChat() {
   const { t, language } = useLanguage();
   const { user } = useAuth();
-  const [mode, setMode] = useState<ChatMode>("balanced");
+  const mode: ChatMode = "balanced";
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: "welcome", role: "assistant", text: t("chatWelcomeBalanced") },
   ]);
@@ -107,16 +107,6 @@ export function useFinoChat() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
-
-  function switchMode(next: ChatMode) {
-    setMode(next);
-    setMessages((prev) => {
-      if (prev.length === 1 && prev[0].id === "welcome") {
-        return [{ id: "welcome", role: "assistant", text: t(CHAT_MODE_META[next].welcomeKey) }];
-      }
-      return prev;
-    });
-  }
 
   const snapshot = useMemo(() => {
     const now = new Date();
@@ -199,7 +189,6 @@ export function useFinoChat() {
 
   return {
     mode,
-    switchMode,
     messages,
     historyLoaded,
     input,
