@@ -53,7 +53,10 @@ export function ChatScreen() {
   const meta = CHAT_MODE_META[mode];
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    // "auto" (instant) rather than "smooth" — sendMessage's state updates (loading true,
+    // then the reply, then loading false) fire this effect several times in quick succession,
+    // and stacking animated scrolls on top of each other looked like the chat was bouncing.
+    endRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages, loading]);
 
   if (!historyLoaded) {
