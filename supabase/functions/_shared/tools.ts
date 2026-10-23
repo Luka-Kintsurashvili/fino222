@@ -556,11 +556,15 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "remember_fact",
     description:
-      "Saves a short, durable fact about the user for future conversations — a stated preference, usual shopping habit, goal, or similar detail they told you directly. Only call this for something the user explicitly said, never something you inferred or guessed. Always tell the user afterward what you saved, in plain language, so they can correct it if it's wrong.",
+      "Saves a short, durable fact about the user for future conversations — a stated preference, usual shopping habit, goal, or similar detail they told you directly. Only call this for something the user explicitly and clearly said about themselves, never something you inferred, guessed, or paraphrased from unclear/test/nonsense input. If the message doesn't contain an unambiguous fact, do not call this tool at all — never save the raw message text as a 'fact' when its meaning isn't clear to you. Always tell the user afterward what you saved, in plain language, so they can correct it if it's wrong.",
     parameters: {
       type: "OBJECT",
       properties: {
-        fact: { type: "STRING", description: "The fact to remember, written as a short, self-contained statement (e.g. 'Usually buys rice, chicken, and milk' or 'Shops mainly at Nikora and Carrefour')." },
+        fact: {
+          type: "STRING",
+          description:
+            "The fact to remember, written as a short, self-contained statement about the user (e.g. 'Usually buys rice, chicken, and milk' or 'Shops mainly at Nikora and Carrefour'). Never a verbatim quote of an unclear message or a note like 'meaning unclear'.",
+        },
       },
       required: ["fact"],
     },
