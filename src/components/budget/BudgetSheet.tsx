@@ -26,6 +26,8 @@ export function BudgetSheet({ open, onClose }: BudgetSheetProps) {
   const [saved, setSaved] = useState(false);
 
   // Once the saved plan (or a known income) loads, use it as the starting point — still editable.
+  // latestIncome and plan load from two independent hooks, so this must react to either one
+  // settling, not just whichever happened to be in the dependency array first.
   useEffect(() => {
     if (plan) {
       setIncome(plan.monthlyIncome);
@@ -33,8 +35,7 @@ export function BudgetSheet({ open, onClose }: BudgetSheetProps) {
     } else if (latestIncome && latestIncome > 0) {
       setIncome(Math.round(latestIncome));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan, planLoading]);
+  }, [plan, planLoading, latestIncome]);
 
   const rule = budgetRules.find((r) => r.id === ruleId) ?? budgetRules[0];
   const amounts = useMemo(() => seedAmountsFromRule(rule, income), [rule, income]);
