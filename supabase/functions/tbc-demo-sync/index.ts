@@ -46,28 +46,39 @@ Deno.serve(async (req: Request) => {
     const isFirstSync = (seedCount ?? 0) === 0;
     const rows = isFirstSync ? [...generateSeedTransactions(), generateFreshTransaction()] : [generateFreshTransaction()];
 
-    if (isFirstSync) {
-      try {
-        const mock = await fetchTbcMockBankData();
-        const primaryAccount = pickPrimaryAccount(mock.accounts);
-        // Only the one account Fino actually shows as "TBC" (see tbc-demo-connect) — the mock
-        // customer's other, unrepresented accounts must not silently add duplicate income/expenses.
-        const txns = primaryAccount ? (mock.transactionsByAccount[primaryAccount.resourceId] ?? []) : [];
-        for (const t of txns) {
-          rows.push({
-            type: t.amount >= 0 ? "income" : "expense",
-            amount: Math.abs(t.amount),
-            category: null,
-            note: t.note,
-            date: t.bookingDate,
-            external_id: `tbc-mock-${primaryAccount!.resourceId}-${t.transactionId}`,
-          });
+    try {
+      const mock = await fetchTbcMockBankData();
+      const primaryAccount = pickPrimaryAccount(mock.accounts);
+      if (primaryAccount) {
+        // Refresh the cached balance shown on the TBC card every sync, not just the first one —
+        // otherwise it stays frozen at whatever it was (or the fallback) the first time this ran.
+        const { error: balanceError } = await supabase
+          .from("bank_accounts")
+          .update({ balance: primaryAccount.balance })
+          .eq("user_id", user.id)
+          .eq("bank_id", "tbc");
+        if (balanceError) console.error("Failed to refresh TBC cached balance:", balanceError.message);
+
+        if (isFirstSync) {
+          // Only the one account Fino actually shows as "TBC" (see tbc-demo-connect) — the mock
+          // customer's other, unrepresented accounts must not silently add duplicate income/expenses.
+          const txns = mock.transactionsByAccount[primaryAccount.resourceId] ?? [];
+          for (const t of txns) {
+            rows.push({
+              type: t.amount >= 0 ? "income" : "expense",
+              amount: Math.abs(t.amount),
+              category: null,
+              note: t.note,
+              date: t.bookingDate,
+              external_id: `tbc-mock-${primaryAccount.resourceId}-${t.transactionId}`,
+            });
+          }
         }
-      } catch (e) {
-        // The mock does simulate rare outages — fall through with just our own generated data
-        // rather than fail the whole sync over a flaky third-party service.
-        console.error("TBC mock transactions unreachable, continuing with simulated data only:", e);
       }
+    } catch (e) {
+      // The mock does simulate rare outages — fall through with just our own generated data
+      // rather than fail the whole sync over a flaky third-party service.
+      console.error("TBC mock unreachable, continuing with simulated data and stale cached balance:", e);
     }
 
     const withUser = rows.map((r) => ({ ...r, user_id: user.id }));

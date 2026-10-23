@@ -28,3 +28,4 @@ dist-ssr
 ml/*.joblib
 .ekalata_sync_secret.local
 .scratch/
+supabase/.temp/
