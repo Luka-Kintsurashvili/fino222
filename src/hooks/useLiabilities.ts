@@ -56,5 +56,5 @@ export function useLiabilities() {
 
   const total = liabilities.reduce((sum, l) => sum + l.amount, 0);
 
-  return { liabilities, loading, error, addLiability, removeLiability, total };
+  return { liabilities, loading, error, addLiability, removeLiability, total, refresh };
 }

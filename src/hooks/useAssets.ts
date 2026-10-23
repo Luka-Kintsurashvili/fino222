@@ -57,5 +57,5 @@ export function useAssets() {
   const liquidTotal = assets.filter((a) => a.liquidity === "liquid").reduce((sum, a) => sum + a.value, 0);
   const nonliquidTotal = assets.filter((a) => a.liquidity === "nonliquid").reduce((sum, a) => sum + a.value, 0);
 
-  return { assets, loading, error, addAsset, removeAsset, liquidTotal, nonliquidTotal };
+  return { assets, loading, error, addAsset, removeAsset, liquidTotal, nonliquidTotal, refresh };
 }

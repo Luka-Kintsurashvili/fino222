@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Scale } from "lucide-react";
 import { RingProgress } from "@/components/ui/RingProgress";
 import { useAccounts } from "@/hooks/useAccounts";
@@ -8,11 +9,22 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { useChartDrawer } from "@/lib/ChartDrawerContext";
 
 export function NetWorthTile() {
-  const { openDrawer } = useChartDrawer();
+  const { open, openDrawer } = useChartDrawer();
   const { t } = useLanguage();
   const { totalBalance } = useAccounts();
-  const { liquidTotal, nonliquidTotal } = useAssets();
-  const { total: liabilitiesTotal } = useLiabilities();
+  const { liquidTotal, nonliquidTotal, refresh: refreshAssets } = useAssets();
+  const { total: liabilitiesTotal, refresh: refreshLiabilities } = useLiabilities();
+
+  // The drawer's own add/remove forms use separate hook instances, so this tile's totals go
+  // stale while it's open — refetch once the drawer closes rather than only on page reload.
+  const wasOpen = useRef(open);
+  useEffect(() => {
+    if (wasOpen.current && !open) {
+      refreshAssets();
+      refreshLiabilities();
+    }
+    wasOpen.current = open;
+  }, [open, refreshAssets, refreshLiabilities]);
 
   const totalLiquid = totalBalance + liquidTotal;
   const totalAssets = totalLiquid + nonliquidTotal;
