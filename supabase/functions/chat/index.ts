@@ -235,7 +235,6 @@ Deno.serve(async (req: Request) => {
     ];
 
     let finalText: string | undefined;
-    let accumulatedText = "";
     let lastAction: ChatAction | undefined;
 
     for (let iteration = 0; iteration < MAX_TOOL_ITERATIONS; iteration++) {
@@ -271,12 +270,6 @@ Deno.serve(async (req: Request) => {
       const message = choice?.message;
       console.log(`OpenAI responded after ${Date.now() - startedAt}ms, finishReason=${choice?.finish_reason}`);
 
-      // OpenAI can return a partial text answer alongside tool_calls in the same turn —
-      // accumulate it now so it isn't lost once we loop back in for the tool result.
-      if (typeof message?.content === "string" && message.content) {
-        accumulatedText += (accumulatedText ? " " : "") + message.content;
-      }
-
       const toolCalls: OpenAiToolCall[] = message?.tool_calls ?? [];
 
       if (toolCalls.length > 0) {
@@ -297,7 +290,7 @@ Deno.serve(async (req: Request) => {
         continue;
       }
 
-      finalText = accumulatedText.trim();
+      finalText = (typeof message?.content === "string" ? message.content : "").trim();
       break;
     }
 
