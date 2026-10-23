@@ -29,6 +29,12 @@ export const translations = {
   calendarAuthGate: { ka: "გადახდების კალენდრის სანახავად საჭიროა ავტორიზაცია.", en: "Sign in to view your payment calendar." },
   recurringPaymentTitle: { ka: "განმეორებადი გადახდა", en: "Recurring payment" },
   draftDetectedTitle: { ka: "ფინომ შეამჩნია განმეორება", en: "Fino noticed a pattern" },
+  recklessSpendTitle: { ka: "დიდი ხარჯი ბალანსთან შედარებით", en: "Big spend relative to your balance" },
+  recklessSpendBody: { ka: "{note} — {amount} ₾. დარჩენილი ბალანსი: {balance} ₾.", en: "{note} — {amount} ₾. Remaining balance: {balance} ₾." },
+  recklessSpendPrompt: {
+    ka: "ვხედავ, რომ {note}-ზე {amount} ₾ დავხარჯე და ბალანსი დამიკლო — ეს დიდი თანხაა ჩემს დარჩენილ ფულთან შედარებით. რას მირჩევ?",
+    en: "I just spent {amount} ₾ on {note} and it ate into my balance — that's a big chunk of what I have left. What do you suggest?",
+  },
   draftDetectedBody: {
     ka: "ეს არის ჩანაწერი, ჯერ არ არის დამატებული — შეამოწმე დეტალები და დაამტკიცე, თუ სწორია.",
     en: "This is a draft, not yet added — review the details and approve it if it looks right.",

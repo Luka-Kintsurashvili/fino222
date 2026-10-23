@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Sparkles, CalendarClock, X } from "lucide-react";
+import { Bell, Sparkles, CalendarClock, TriangleAlert, X } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { useAccounts } from "@/hooks/useAccounts";
 import { useTransactions } from "@/hooks/useTransactions";
 import { usePayments } from "@/hooks/usePayments";
 import { useReminders } from "@/hooks/useReminders";
@@ -9,6 +10,7 @@ import { useDismissedRecurring } from "@/hooks/useDismissedRecurring";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQuickSheet } from "@/lib/QuickSheetContext";
 import { detectRecurringPayments } from "@/lib/recurringDetect";
+import { detectRecklessSpend } from "@/lib/recklessSpendDetect";
 import { formatGEL } from "@/lib/format";
 import { useLanguage } from "@/lib/LanguageContext";
 
@@ -22,6 +24,7 @@ export function NotificationsPanel() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { openSheet } = useQuickSheet();
+  const { totalBalance } = useAccounts();
   const { expenses } = useTransactions();
   const { payments } = usePayments();
   const { dueSoon } = useReminders();
@@ -43,9 +46,15 @@ export function NotificationsPanel() {
     return detectRecurringPayments(rows, excluded);
   }, [expenses, payments, dismissedNames]);
 
+  const recklessAlert = useMemo(() => detectRecklessSpend(expenses, totalBalance), [expenses, totalBalance]);
+
   const itemIds = useMemo(
-    () => [...recurringCandidates.map((c) => `recur:${c.name}`), ...dueSoon.map((r) => `due:${r.id}`)],
-    [recurringCandidates, dueSoon]
+    () => [
+      ...recurringCandidates.map((c) => `recur:${c.name}`),
+      ...dueSoon.map((r) => `due:${r.id}`),
+      ...(recklessAlert ? [`reckless:${recklessAlert.transactionId}`] : []),
+    ],
+    [recurringCandidates, dueSoon, recklessAlert]
   );
 
   // Clears the unread dot once the user has actually opened the panel, per item — a new item
@@ -55,7 +64,7 @@ export function NotificationsPanel() {
 
   if (!user) return null;
 
-  const count = recurringCandidates.length + dueSoon.length;
+  const count = recurringCandidates.length + dueSoon.length + (recklessAlert ? 1 : 0);
 
   function handleToggle() {
     setOpen((prev) => {
@@ -73,6 +82,15 @@ export function NotificationsPanel() {
 
   function handleReminderClick() {
     navigate("/calendar");
+    setOpen(false);
+  }
+
+  function handleRecklessClick() {
+    if (!recklessAlert) return;
+    const prefillInput = t("recklessSpendPrompt")
+      .replace("{note}", recklessAlert.note)
+      .replace("{amount}", String(recklessAlert.amount));
+    navigate("/chat", { state: { prefillInput } });
     setOpen(false);
   }
 
@@ -132,6 +150,23 @@ export function NotificationsPanel() {
                 </button>
               );
             })}
+
+            {recklessAlert && (
+              <button onClick={handleRecklessClick} className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-surface">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger">
+                  <TriangleAlert size={13} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-text-primary">{t("recklessSpendTitle")}</p>
+                  <p className="mt-0.5 truncate text-xs text-text-muted">
+                    {t("recklessSpendBody")
+                      .replace("{note}", recklessAlert.note)
+                      .replace("{amount}", String(recklessAlert.amount))
+                      .replace("{balance}", String(totalBalance))}
+                  </p>
+                </div>
+              </button>
+            )}
           </div>
         </div>
       )}
