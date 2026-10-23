@@ -51,16 +51,22 @@ function AccountsContent() {
   const { target, consume } = useQuickSheet();
   const [addProjectOpen, setAddProjectOpen] = useState(false);
   const [loanOpen, setLoanOpen] = useState(false);
+  const [loanMode, setLoanMode] = useState<"compare" | "approval">("compare");
   const [budgetOpen, setBudgetOpen] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     if (target === "loan") {
+      setLoanMode("compare");
       setLoanOpen(true);
       consume();
     } else if (target === "budget") {
       setBudgetOpen(true);
+      consume();
+    } else if (target === "credit") {
+      setLoanMode("approval");
+      setLoanOpen(true);
       consume();
     }
   }, [target, consume]);
@@ -133,7 +139,12 @@ function AccountsContent() {
           <div className="grid grid-cols-4 gap-2">
             <FundsQuickTile />
             <CalendarQuickTile />
-            <LoanQuickTile onClick={() => setLoanOpen(true)} />
+            <LoanQuickTile
+              onClick={() => {
+                setLoanMode("compare");
+                setLoanOpen(true);
+              }}
+            />
             <BudgetQuickTile onClick={() => setBudgetOpen(true)} />
           </div>
 
@@ -188,7 +199,7 @@ function AccountsContent() {
       )}
 
       <AddProjectSheet open={addProjectOpen} onClose={() => setAddProjectOpen(false)} onAdd={addProject} />
-      <LoanSheet open={loanOpen} onClose={() => setLoanOpen(false)} />
+      <LoanSheet open={loanOpen} onClose={() => setLoanOpen(false)} initialMode={loanMode} />
       <BudgetSheet open={budgetOpen} onClose={() => setBudgetOpen(false)} />
     </div>
   );

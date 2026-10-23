@@ -6,9 +6,10 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { compareLoanOffers, type LoanType } from "./loanMath.ts";
 import { BUDGET_RULES, seedAmountsFromRule } from "./budgetMath.ts";
+import { scoreApplicant, type ApplicantInput, type Region, type EmploymentType, type CreditHistory, type LoanCurrency } from "./creditRisk.ts";
 import { detectRecurringPayments } from "./recurringDetect.ts";
 
-export type TileTarget = "funds" | "calendar" | "loan" | "networth" | "budget";
+export type TileTarget = "funds" | "calendar" | "loan" | "networth" | "budget" | "credit";
 
 export interface ChatAction {
   target: TileTarget;
@@ -218,6 +219,51 @@ async function suggestBudgetSplitHandler(_supabase: SupabaseClient, _userId: str
   };
 }
 
+const REGIONS = new Set(["Tbilisi", "Kutaisi", "Rustavi", "Batumi", "Other"]);
+const EMPLOYMENT_TYPES = new Set(["salaried", "public_sector", "self_employed", "freelancer"]);
+const CREDIT_HISTORIES = new Set(["none", "some", "long"]);
+
+// deno-lint-ignore require-await
+async function checkLoanApprovalHandler(_supabase: SupabaseClient, _userId: string, input: Record<string, unknown>): Promise<ToolResult> {
+  const monthlyIncome = typeof input.monthly_income_gel === "number" ? input.monthly_income_gel : 0;
+  const loanAmount = typeof input.loan_amount === "number" ? input.loan_amount : 0;
+  const loanTermMonths = typeof input.loan_term_months === "number" ? input.loan_term_months : 0;
+
+  if (monthlyIncome <= 0) return { summary: "Error: monthly_income_gel must be a positive number." };
+  if (loanAmount <= 0) return { summary: "Error: loan_amount must be a positive number." };
+  if (loanTermMonths <= 0) return { summary: "Error: loan_term_months must be a positive number." };
+
+  const applicant: ApplicantInput = {
+    age: typeof input.age === "number" ? input.age : 35,
+    monthly_income_gel: monthlyIncome,
+    loan_amount: loanAmount,
+    loan_term_months: loanTermMonths,
+    loan_currency: (typeof input.loan_currency === "string" && input.loan_currency === "USD" ? "USD" : "GEL") as LoanCurrency,
+    region: (typeof input.region === "string" && REGIONS.has(input.region) ? input.region : "Tbilisi") as Region,
+    employment_type: (typeof input.employment_type === "string" && EMPLOYMENT_TYPES.has(input.employment_type) ? input.employment_type : "salaried") as EmploymentType,
+    credit_history: (typeof input.credit_history === "string" && CREDIT_HISTORIES.has(input.credit_history) ? input.credit_history : "some") as CreditHistory,
+    years_at_job: typeof input.years_at_job === "number" ? input.years_at_job : 3,
+    credit_history_months: typeof input.credit_history_months === "number" ? input.credit_history_months : 24,
+    income_months_last_6: typeof input.income_months_last_6 === "number" ? Math.min(6, input.income_months_last_6) : 6,
+    overdrafts_last_6m: typeof input.overdrafts_last_6m === "number" ? input.overdrafts_last_6m : 0,
+    essentials_share_pct: typeof input.essentials_share_pct === "number" ? input.essentials_share_pct : 40,
+    existing_loans: typeof input.existing_loans === "number" ? input.existing_loans : 0,
+  };
+
+  const result = scoreApplicant(applicant);
+
+  const decisionText = result.decision === "auto_approve" ? "likely approved" : result.decision === "manual_review" ? "needs manual review" : "likely declined";
+  const ptiText = result.ptiPass
+    ? `PTI ${result.ptiPct.toFixed(1)}% is within the ${result.ptiLimitPct}% limit.`
+    : `PTI ${result.ptiPct.toFixed(1)}% EXCEEDS the ${result.ptiLimitPct}% limit — this alone would block approval regardless of score.`;
+  const reasonsText = result.reasons.map((r) => `${r.label} (${r.direction === "up" ? "increases" : "decreases"} risk)`).join(", ");
+
+  return {
+    summary: `Estimated default probability: ${(result.pd * 100).toFixed(1)}% → ${decisionText}. Estimated monthly payment: ${result.monthlyPayment.toFixed(0)} GEL. ${ptiText} Top factors: ${reasonsText}. This is an estimate from a model trained on fictional data, not a real bank decision.`,
+    action: { target: "credit", label: "View loan approval estimate" },
+  };
+}
+
 async function detectRecurringPaymentsHandler(supabase: SupabaseClient, userId: string, _input: Record<string, unknown>): Promise<ToolResult> {
   const { data: expenses, error: txError } = await supabase
     .from("transactions")
@@ -359,6 +405,28 @@ export const TOOLS: ToolDefinition[] = [
       required: ["monthly_income"],
     },
     handler: suggestBudgetSplitHandler,
+  },
+  {
+    name: "check_loan_approval",
+    description:
+      "Estimates whether a bank would likely approve a consumer loan, using a credit-risk model trained on fictional course data — an estimate, not a real bank decision. Returns a default-probability estimate, an approve/review/decline suggestion, the top factors driving the estimate, and whether the payment-to-income (PTI) affordability rule passes. Use this when the user asks whether they'd get approved for a loan, what their chances are, or what they'd need to change to qualify — not for comparing bank interest rates (use compare_loan_offers for that).",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        monthly_income_gel: { type: "NUMBER", description: "The applicant's net monthly income in GEL." },
+        loan_amount: { type: "NUMBER", description: "The requested loan amount in GEL." },
+        loan_term_months: { type: "INTEGER", description: "The requested loan term in months." },
+        loan_currency: { type: "STRING", description: "'GEL' or 'USD'. Defaults to 'GEL' if not specified." },
+        age: { type: "INTEGER", description: "Applicant's age. Defaults to 35 if not mentioned — do not ask for this unless relevant." },
+        region: { type: "STRING", description: "One of: 'Tbilisi', 'Kutaisi', 'Rustavi', 'Batumi', 'Other'. Defaults to 'Tbilisi' if not mentioned — do not ask." },
+        employment_type: { type: "STRING", description: "One of: 'salaried', 'public_sector', 'self_employed', 'freelancer'. Defaults to 'salaried' if not mentioned — do not ask." },
+        credit_history: { type: "STRING", description: "One of: 'none', 'some', 'long'. Defaults to 'some' if not mentioned — do not ask." },
+        years_at_job: { type: "NUMBER", description: "Years at current job. Defaults to 3 if not mentioned — do not ask." },
+        existing_loans: { type: "INTEGER", description: "Number of existing loans. Defaults to 0 if not mentioned — do not ask." },
+      },
+      required: ["monthly_income_gel", "loan_amount", "loan_term_months"],
+    },
+    handler: checkLoanApprovalHandler,
   },
   {
     name: "detect_recurring_payments",

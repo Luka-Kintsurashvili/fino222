@@ -33,6 +33,15 @@ function stddev(values: number[], avg: number): number {
   return Math.sqrt(mean(values.map((v) => (v - avg) ** 2)));
 }
 
+const LOAN_KEYWORDS = ["სესხ", "კრედიტ", "განვადება", "loan", "credit", "installment"];
+
+/** Heuristic only — flags a recurring payment whose note reads like a loan/installment
+ * repayment, so it can be suggested (not assumed) as an existing loan in the credit check. */
+export function isLikelyExistingLoan(name: string): boolean {
+  const lower = name.toLowerCase();
+  return LOAN_KEYWORDS.some((k) => lower.includes(k));
+}
+
 export function detectRecurringPayments(expenses: ExpenseRow[], existingPaymentNames: string[]): RecurringCandidate[] {
   const existing = new Set(existingPaymentNames.map((n) => n.trim().toLowerCase()));
   const groups = new Map<string, ExpenseRow[]>();
