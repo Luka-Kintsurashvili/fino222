@@ -73,10 +73,6 @@ export function ChatScreen() {
     <div className="flex h-[calc(100dvh-3.5rem)] flex-col px-4 pb-4 pt-3">
       <div className={`pointer-events-none fixed -top-16 left-1/2 h-40 w-72 -translate-x-1/2 rounded-full bg-gradient-to-br ${meta.gradient} opacity-15 blur-3xl transition-colors duration-500`} />
 
-      <div className="relative mb-1 flex items-center justify-between gap-2.5">
-        <p className="text-[11px] font-medium text-text-muted transition-colors duration-300">{t(meta.subtitleKey)}</p>
-      </div>
-
       <div className="relative flex-1 space-y-5 overflow-y-auto pb-3">
         {messages.map((m) => (
           <div key={m.id} className={`flex w-full flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
