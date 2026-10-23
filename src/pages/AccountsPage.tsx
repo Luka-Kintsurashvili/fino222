@@ -32,7 +32,7 @@ export function AccountsPage() {
   if (!user) {
     return (
       <div className="space-y-5">
-        <SubPageHeader title={t("accountsTitle")} subtitle={t("accountsSubtitle")} />
+        <SubPageHeader title={t("accountsTitle")} subtitle={t("accountsSubtitle")} showBack={false} />
         <AuthGate message={t("accountsAuthGate")} />
       </div>
     );
@@ -101,7 +101,7 @@ function AccountsContent() {
 
   return (
     <div className="space-y-5">
-      <SubPageHeader title={t("accountsTitle")} subtitle={t("accountsSubtitle")} />
+      <SubPageHeader title={t("accountsTitle")} subtitle={t("accountsSubtitle")} showBack={false} />
 
       {loading ? (
         <p className="text-sm text-text-muted">{t("loadingText")}</p>
@@ -123,13 +123,6 @@ function AccountsContent() {
             onConnectClick={tbcConnected ? handleSync : handleConnect}
             connecting={syncing}
           />
-
-          {tbcConnected && (
-            <div className="flex items-start gap-2 rounded-xl border border-accent/20 bg-accent/5 px-3.5 py-2.5 text-xs text-text-secondary">
-              <CircleAlert size={14} className="mt-0.5 shrink-0 text-accent" />
-              <p>{t("tbcDemoNotice")}</p>
-            </div>
-          )}
 
           <div className="grid grid-cols-2 gap-2.5">
             <GraphsTile />

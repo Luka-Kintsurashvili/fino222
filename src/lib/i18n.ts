@@ -113,10 +113,6 @@ export const translations = {
   connectTbc: { ka: "TBC ანგარიშის დაკავშირება", en: "Connect TBC account" },
   tbcConnecting: { ka: "დაკავშირება...", en: "Connecting..." },
   tbcConnected: { ka: "TBC ანგარიში დაკავშირებულია", en: "TBC account connected" },
-  tbcDemoNotice: {
-    ka: "დემო რეჟიმი: TBC-ის ანგარიში მოდის დამოუკიდებელი Open Banking სატესტო API-დან (იგივე მონაცემები ყველასთვის); BOG სიმულირებულია. რეალური წვდომა მოითხოვს ეროვნული ბანკის ლიცენზიას.",
-    en: "Demo mode: the TBC account comes from an independent Open Banking test API (same data for everyone); BOG is simulated. Real access requires a National Bank license.",
-  },
   tbcConnectError: { ka: "TBC-სთან დაკავშირება ვერ მოხერხდა", en: "Couldn't connect your TBC account" },
   tbcCallbackWorking: { ka: "TBC ანგარიშის დადასტურება...", en: "Confirming your TBC account..." },
   tbcCallbackSuccess: { ka: "TBC ანგარიში წარმატებით დაუკავშირდა", en: "TBC account connected successfully" },
