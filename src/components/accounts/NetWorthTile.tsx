@@ -34,7 +34,7 @@ export function NetWorthTile() {
   return (
     <button
       onClick={() => openDrawer("networth")}
-      className="flex flex-col items-start gap-2.5 rounded-2xl border border-border-soft bg-surface p-4 text-left transition-colors hover:border-accent/40"
+      className="flex min-w-0 flex-col items-start gap-2.5 rounded-2xl border border-border-soft bg-surface p-4 text-left transition-colors hover:border-accent/40"
     >
       <div className="flex w-full items-center justify-between">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft text-accent">
@@ -42,7 +42,7 @@ export function NetWorthTile() {
         </span>
         <RingProgress percent={liquidPct} size={30} strokeWidth={4} color="#6366F1" />
       </div>
-      <div>
+      <div className="min-w-0 w-full">
         <p className="text-xs text-text-muted">{t("navNetWorth")}</p>
         <p className="mt-0.5 truncate font-mono text-base font-bold tabular text-text-primary">{formatGEL(netWorth)}</p>
       </div>
