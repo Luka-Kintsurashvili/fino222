@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/AuthContext";
 export function AppLayout() {
   const location = useLocation();
   const { user } = useAuth();
-  const isChatScreen = location.pathname === "/";
+  const isChatScreen = location.pathname === "/chat";
 
   return (
     <ChartDrawerProvider>
