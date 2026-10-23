@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Wallet } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { NotificationsPanel } from "@/components/layout/NotificationsPanel";
 import { FinoMark } from "@/components/ui/FinoMark";
@@ -16,11 +16,11 @@ export function Header() {
         </Link>
         <div className="flex items-center gap-2">
           <Link
-            to="/wallet"
-            aria-label={t("accountsTitle")}
+            to="/chat"
+            aria-label={t("navChat")}
             className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:border-accent/50 hover:text-text-primary"
           >
-            <Wallet size={16} />
+            <MessageCircle size={16} />
           </Link>
           <NotificationsPanel />
           <ProfileMenu />

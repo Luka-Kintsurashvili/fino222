@@ -25,9 +25,10 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/tbc-callback" element={<TbcCallbackPage />} />
               <Route element={<AppLayout />}>
-                <Route index element={<HomePage />} />
+                <Route index element={<AccountsPage />} />
                 <Route path="/wallet" element={<AccountsPage />} />
                 <Route path="/accounts" element={<Navigate to="/wallet" replace />} />
+                <Route path="/chat" element={<HomePage />} />
                 <Route path="/projects/:id" element={<ProjectPage />} />
                 <Route path="/funds" element={<FundsPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />

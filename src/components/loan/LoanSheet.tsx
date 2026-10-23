@@ -148,7 +148,7 @@ export function LoanSheet({ open, onClose, initialMode = "compare" }: LoanSheetP
     if (!result) return;
     const reasonsText = result.reasons.map((r) => `${r.label} (${r.direction === "up" ? t("increasesRisk") : t("decreasesRisk")})`).join(", ");
     const message = `${t("creditCheckTitle")}: ${(result.pd * 100).toFixed(1)}% PD → ${decisionLabel}. ${t("ptiCheckLabel")} ${result.ptiPct.toFixed(1)}%/${result.ptiLimitPct}%. ${t("topFactorsLabel")}: ${reasonsText}.`;
-    navigate("/", { state: { prefillInput: message } });
+    navigate("/chat", { state: { prefillInput: message } });
     onClose();
   }
 
