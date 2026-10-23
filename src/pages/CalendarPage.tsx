@@ -139,12 +139,12 @@ function CalendarView() {
               <p className="mb-2 text-xs font-semibold text-text-muted">{t("everyMonthOnDay").replace("{day}", String(dayNum))}</p>
               <div className="space-y-2">
                 {list.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: p.color }} />
-                      <span className="text-sm text-text-primary">{p.name}</span>
+                  <div key={p.id} className="flex items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: p.color }} />
+                      <span className="truncate text-sm text-text-primary">{p.name}</span>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex shrink-0 items-center gap-3">
                       <span className="font-mono text-sm tabular text-text-secondary">{formatGEL(p.amount)}</span>
                       <button
                         onClick={() => deletePayment(p.id)}

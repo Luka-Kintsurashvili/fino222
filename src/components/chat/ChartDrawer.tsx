@@ -126,14 +126,14 @@ function OverviewSection({ onNavigate }: { onNavigate: () => void }) {
               {upcoming.map((r) => {
                 const days = daysUntil(r.due_date);
                 return (
-                  <li key={r.id} className="flex items-center justify-between rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
-                    <div>
-                      <p className="text-sm font-medium text-text-primary">{r.label}</p>
+                  <li key={r.id} className="flex items-center justify-between gap-2 rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-text-primary">{r.label}</p>
                       <p className="text-xs text-text-muted">
                         {days <= 0 ? t("dueToday") : t("dueInDays").replace("{days}", String(days))}
                       </p>
                     </div>
-                    {r.amount != null && <p className="text-sm font-bold tabular text-text-primary">{formatGEL(r.amount)}</p>}
+                    {r.amount != null && <p className="shrink-0 text-sm font-bold tabular text-text-primary">{formatGEL(r.amount)}</p>}
                   </li>
                 );
               })}
@@ -168,15 +168,15 @@ function GraphsSection() {
     <>
       {monthlyIncome > 0 && (
         <div className="grid grid-cols-2 gap-2.5">
-          <div className="flex items-center gap-3 rounded-xl border border-border-soft bg-surface p-3.5">
+          <div className="flex min-w-0 items-center gap-3 rounded-xl border border-border-soft bg-surface p-3.5">
             <RingProgress percent={Math.min(dtiPercent, 100)} size={40} strokeWidth={5} color={dtiPercent > 40 ? "var(--color-danger)" : "var(--color-accent)"} />
-            <div>
-              <p className="text-[11px] leading-tight text-text-muted">{t("dtiLabel")}</p>
+            <div className="min-w-0">
+              <p className="truncate text-[11px] leading-tight text-text-muted">{t("dtiLabel")}</p>
               <p className="text-lg font-bold tabular text-text-primary">{dtiPercent.toFixed(0)}%</p>
             </div>
           </div>
-          <div className="rounded-xl border border-border-soft bg-surface p-3.5">
-            <p className="text-[11px] text-text-muted">{t("savingsRateLabel")}</p>
+          <div className="min-w-0 rounded-xl border border-border-soft bg-surface p-3.5">
+            <p className="truncate text-[11px] text-text-muted">{t("savingsRateLabel")}</p>
             <p className={`mt-1 text-lg font-bold tabular ${savingsRate >= 0 ? "text-success" : "text-danger"}`}>
               {savingsRate.toFixed(0)}%
             </p>
@@ -222,12 +222,12 @@ function GraphsSection() {
         ) : (
           <div className="space-y-2">
             {categoryData.map((c) => (
-              <div key={c.key} className="flex items-center justify-between rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
-                <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: c.color }} />
-                  <span className="text-sm text-text-primary">{c.label}</span>
+              <div key={c.key} className="flex items-center justify-between gap-2 rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />
+                  <span className="truncate text-sm text-text-primary">{c.label}</span>
                 </div>
-                <span className="text-sm font-bold tabular text-text-primary">{formatGEL(c.amount)}</span>
+                <span className="shrink-0 text-sm font-bold tabular text-text-primary">{formatGEL(c.amount)}</span>
               </div>
             ))}
           </div>
@@ -287,19 +287,19 @@ function NetWorthSection() {
       </div>
 
       <div className="grid grid-cols-2 gap-2.5">
-        <div className="rounded-xl border border-border-soft bg-surface p-3.5">
-          <p className="text-xs text-text-muted">{t("totalAssetsLabel")}</p>
-          <p className="mt-1 text-lg font-bold tabular text-text-primary">{formatGEL(totalAssets)}</p>
+        <div className="min-w-0 rounded-xl border border-border-soft bg-surface p-3.5">
+          <p className="truncate text-xs text-text-muted">{t("totalAssetsLabel")}</p>
+          <p className="mt-1 truncate text-lg font-bold tabular text-text-primary">{formatGEL(totalAssets)}</p>
         </div>
-        <div className="rounded-xl border border-border-soft bg-surface p-3.5">
-          <p className="text-xs text-text-muted">{t("totalLiabilitiesLabel")}</p>
-          <p className="mt-1 text-lg font-bold tabular text-text-primary">{formatGEL(liabilitiesTotal)}</p>
+        <div className="min-w-0 rounded-xl border border-border-soft bg-surface p-3.5">
+          <p className="truncate text-xs text-text-muted">{t("totalLiabilitiesLabel")}</p>
+          <p className="mt-1 truncate text-lg font-bold tabular text-text-primary">{formatGEL(liabilitiesTotal)}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-4 rounded-xl border border-border-soft bg-surface p-3.5">
         <RingProgress percent={liquidPct} size={44} strokeWidth={5} color="#6366F1" />
-        <div className="flex-1 space-y-1.5">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-text-secondary">{t("liquid")}</span>
             <span className="font-semibold tabular text-text-primary">{formatGEL(totalLiquid)}</span>
@@ -377,9 +377,9 @@ function NetWorthSection() {
         ) : (
           <ul className="space-y-2">
             {assets.map((a) => (
-              <li key={a.id} className="flex items-center justify-between rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
-                <span className="text-sm text-text-primary">{a.name}</span>
-                <div className="flex items-center gap-2">
+              <li key={a.id} className="flex items-center justify-between gap-2 rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
+                <span className="min-w-0 truncate text-sm text-text-primary">{a.name}</span>
+                <div className="flex shrink-0 items-center gap-2">
                   <span className="text-sm font-bold tabular text-text-primary">{formatGEL(a.value)}</span>
                   <button type="button" onClick={() => removeAsset(a.id)} className="text-text-muted hover:text-danger" aria-label={t("delete")}>
                     <X size={14} />
@@ -398,9 +398,9 @@ function NetWorthSection() {
         ) : (
           <ul className="space-y-2">
             {liabilities.map((l) => (
-              <li key={l.id} className="flex items-center justify-between rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
-                <span className="text-sm text-text-primary">{l.name}</span>
-                <div className="flex items-center gap-2">
+              <li key={l.id} className="flex items-center justify-between gap-2 rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
+                <span className="min-w-0 truncate text-sm text-text-primary">{l.name}</span>
+                <div className="flex shrink-0 items-center gap-2">
                   <span className="text-sm font-bold tabular text-text-primary">{formatGEL(l.amount)}</span>
                   <button type="button" onClick={() => removeLiability(l.id)} className="text-text-muted hover:text-danger" aria-label={t("delete")}>
                     <X size={14} />
