@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { BankLogo } from "@/components/ui/BankLogo";
 import { RingProgress } from "@/components/ui/RingProgress";
 import { compareLoanOffers, type LoanType } from "@/lib/loan";
-import { scoreApplicant, type LoanCurrency, type Region, type EmploymentType, type CreditHistory } from "@/lib/creditRisk";
+import { scoreApplicant, ASSUMED_EXISTING_LOAN_PAYMENT_GEL, type LoanCurrency, type Region, type EmploymentType, type CreditHistory } from "@/lib/creditRisk";
 import { useTransactions } from "@/hooks/useTransactions";
 import { usePayments } from "@/hooks/usePayments";
 import { detectRecurringPayments, isLikelyExistingLoan } from "@/lib/recurringDetect";
@@ -320,6 +320,13 @@ export function LoanSheet({ open, onClose, initialMode = "compare" }: LoanSheetP
                   </span>
                 </div>
                 <p className={`mt-1 text-xs ${result.ptiPass ? "text-success" : "text-danger"}`}>{result.ptiPass ? t("ptiWithinLimit") : t("ptiExceedsLimit")}</p>
+                {existingLoans > 0 && (
+                  <p className="mt-1 text-[11px] text-text-muted">
+                    {t("ptiIncludesExistingLoansHint")
+                      .replace("{count}", String(existingLoans))
+                      .replace("{amount}", formatGEL(existingLoans * ASSUMED_EXISTING_LOAN_PAYMENT_GEL))}
+                  </p>
+                )}
               </div>
 
               <div>

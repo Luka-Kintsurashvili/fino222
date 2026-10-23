@@ -45,6 +45,14 @@ export interface CreditRiskResult {
 
 const ASSUMED_ANNUAL_RATE: Record<LoanCurrency, number> = { GEL: 0.18, USD: 0.1 };
 
+// Per the loan policy, PTI is "all monthly loan payments, including the new loan" — not just the
+// one being requested. We don't have each existing loan's real payment, so we estimate it:
+// reverse-engineered from the training data, pti_pct there equals
+// (monthly_payment + 140 * existing_loans) / monthly_income_gel * 100 for ~99.5% of rows, so the
+// training data itself assumes a flat 140 GEL/month per existing loan. Matching that keeps live
+// scoring consistent with what the model was actually trained on.
+export const ASSUMED_EXISTING_LOAN_PAYMENT_GEL = 140;
+
 function monthlyPayment(principal: number, annualRate: number, months: number): number {
   if (months <= 0 || principal <= 0) return 0;
   const r = annualRate / 12;
@@ -65,7 +73,8 @@ function sigmoid(z: number): number {
 
 function buildRawFeatures(input: ApplicantInput): Record<string, number> {
   const payment = monthlyPayment(input.loan_amount, ASSUMED_ANNUAL_RATE[input.loan_currency], input.loan_term_months);
-  const ptiPct = input.monthly_income_gel > 0 ? (payment / input.monthly_income_gel) * 100 : 100;
+  const existingDebtPayment = ASSUMED_EXISTING_LOAN_PAYMENT_GEL * input.existing_loans;
+  const ptiPct = input.monthly_income_gel > 0 ? ((payment + existingDebtPayment) / input.monthly_income_gel) * 100 : 100;
 
   return {
     age: input.age,
