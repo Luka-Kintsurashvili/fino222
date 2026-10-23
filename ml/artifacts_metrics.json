@@ -1,9 +1,0 @@
-{
-  "n_applicants": 6000,
-  "default_rate": 0.117,
-  "n_features": 16,
-  "baseline_auc": 0.5,
-  "logistic_regression_auc": 0.7799,
-  "gradient_boosting_auc": 0.8003,
-  "approval_rate_at_12pct_cutoff": 0.6856
-}

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
-export type TileTarget = "funds" | "calendar" | "loan" | "budget" | "credit";
+export type TileTarget = "funds" | "calendar" | "loan" | "budget";
 
 /** An action-drafted payload a sheet can pre-fill for the user to review and approve — never auto-saved. */
 export interface RecurringPaymentDraft {

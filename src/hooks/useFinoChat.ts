@@ -18,7 +18,7 @@ function daysUntil(dueDate: string): number {
 }
 
 export interface ChatAction {
-  target: "funds" | "calendar" | "loan" | "networth" | "budget" | "credit";
+  target: "funds" | "calendar" | "loan" | "networth" | "budget";
   label: string;
   /** A drafted recurring-payment suggestion to pre-fill for review — the user must still save it themselves. */
   draft?: { name: string; amount: number; day_of_month: number };
