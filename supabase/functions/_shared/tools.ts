@@ -274,7 +274,11 @@ async function detectRecurringPaymentsHandler(supabase: SupabaseClient, userId: 
   const { data: payments, error: payError } = await supabase.from("calendar_payments").select("name").eq("user_id", userId);
   if (payError) return { summary: `Error reading existing recurring payments: ${payError.message}` };
 
-  const candidates = detectRecurringPayments(expenses ?? [], (payments ?? []).map((p) => p.name));
+  const { data: dismissed, error: dismissError } = await supabase.from("dismissed_recurring_payments").select("name").eq("user_id", userId);
+  if (dismissError) return { summary: `Error reading dismissed recurring payments: ${dismissError.message}` };
+
+  const excluded = [...(payments ?? []).map((p) => p.name), ...(dismissed ?? []).map((d) => d.name)];
+  const candidates = detectRecurringPayments(expenses ?? [], excluded);
 
   if (candidates.length === 0) {
     return { summary: "No recurring payment pattern was found in the user's transaction history (needs the same note, a similar amount, and a similar day of month across at least 2 different months)." };

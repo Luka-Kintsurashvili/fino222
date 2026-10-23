@@ -130,6 +130,23 @@ create policy "Users manage their own payments"
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
+-- Recurring-payment candidates the user explicitly said are NOT a bill (e.g. a coincidentally
+-- repeating purchase) — excluded from future detection so they don't keep resurfacing.
+create table if not exists public.dismissed_recurring_payments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, name)
+);
+
+alter table public.dismissed_recurring_payments enable row level security;
+
+create policy "Users manage their own dismissed recurring payments"
+  on public.dismissed_recurring_payments for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
 -- Home tab: bank cards, expense-tracking projects, and transactions
 create table if not exists public.bank_accounts (
   id uuid primary key default gen_random_uuid(),

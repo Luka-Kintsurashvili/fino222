@@ -57,6 +57,7 @@ export const translations = {
   security: { ka: "უსაფრთხოება", en: "Security" },
   notifications: { ka: "შეტყობინებები", en: "Notifications" },
   noNotifications: { ka: "ახალი შეტყობინებები არ არის", en: "No new notifications" },
+  notARecurringBill: { ka: "ეს არ არის რეგულარული გადახდა", en: "Not a recurring bill" },
   settings: { ka: "პარამეტრები", en: "Settings" },
   logout: { ka: "გასვლა", en: "Log out" },
   login: { ka: "შესვლა", en: "Log in" },

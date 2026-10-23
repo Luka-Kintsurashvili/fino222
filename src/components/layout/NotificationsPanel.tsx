@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Sparkles, CalendarClock } from "lucide-react";
+import { Bell, Sparkles, CalendarClock, X } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { useTransactions } from "@/hooks/useTransactions";
 import { usePayments } from "@/hooks/usePayments";
 import { useReminders } from "@/hooks/useReminders";
+import { useDismissedRecurring } from "@/hooks/useDismissedRecurring";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQuickSheet } from "@/lib/QuickSheetContext";
 import { detectRecurringPayments } from "@/lib/recurringDetect";
 import { formatGEL } from "@/lib/format";
@@ -23,6 +25,7 @@ export function NotificationsPanel() {
   const { expenses } = useTransactions();
   const { payments } = usePayments();
   const { dueSoon } = useReminders();
+  const { dismissedNames, dismiss } = useDismissedRecurring();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -36,12 +39,31 @@ export function NotificationsPanel() {
 
   const recurringCandidates = useMemo(() => {
     const rows = expenses.map((e) => ({ note: e.note, amount: e.amount, date: e.date, category: e.category }));
-    return detectRecurringPayments(rows, payments.map((p) => p.name));
-  }, [expenses, payments]);
+    const excluded = [...payments.map((p) => p.name), ...dismissedNames];
+    return detectRecurringPayments(rows, excluded);
+  }, [expenses, payments, dismissedNames]);
+
+  const itemIds = useMemo(
+    () => [...recurringCandidates.map((c) => `recur:${c.name}`), ...dueSoon.map((r) => `due:${r.id}`)],
+    [recurringCandidates, dueSoon]
+  );
+
+  // Clears the unread dot once the user has actually opened the panel, per item — a new item
+  // that shows up later (even if the panel was opened before) brings the dot back.
+  const [seenIds, setSeenIds] = useLocalStorage<string[]>(`fino-notif-seen-${user?.id ?? "anon"}`, []);
+  const unseenCount = itemIds.filter((id) => !seenIds.includes(id)).length;
 
   if (!user) return null;
 
   const count = recurringCandidates.length + dueSoon.length;
+
+  function handleToggle() {
+    setOpen((prev) => {
+      const next = !prev;
+      if (next) setSeenIds((seen) => Array.from(new Set([...seen, ...itemIds])));
+      return next;
+    });
+  }
 
   function handleRecurringClick(candidate: (typeof recurringCandidates)[number]) {
     navigate("/calendar");
@@ -57,12 +79,12 @@ export function NotificationsPanel() {
   return (
     <div className="relative" ref={ref}>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleToggle}
         className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:border-accent/50 hover:text-text-primary"
         aria-label={t("notifications")}
       >
         <Bell size={16} />
-        {count > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />}
+        {unseenCount > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />}
       </button>
       {open && (
         <div className="absolute right-0 top-11 z-50 w-72 overflow-hidden rounded-2xl border border-border bg-bg-elevated shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
@@ -73,21 +95,27 @@ export function NotificationsPanel() {
             {count === 0 && <p className="px-4 py-4 text-center text-xs text-text-muted">{t("noNotifications")}</p>}
 
             {recurringCandidates.map((candidate) => (
-              <button
-                key={candidate.name}
-                onClick={() => handleRecurringClick(candidate)}
-                className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-surface"
-              >
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
-                  <Sparkles size={13} />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-text-primary">{t("draftDetectedTitle")}</p>
-                  <p className="mt-0.5 truncate text-xs text-text-muted">
-                    {candidate.name} · {formatGEL(candidate.amount)}
-                  </p>
-                </div>
-              </button>
+              <div key={candidate.name} className="flex items-start gap-1 px-2.5 py-1 hover:bg-surface">
+                <button onClick={() => handleRecurringClick(candidate)} className="flex min-w-0 flex-1 items-start gap-3 px-1.5 py-2 text-left">
+                  <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
+                    <Sparkles size={13} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-text-primary">{t("draftDetectedTitle")}</p>
+                    <p className="mt-0.5 truncate text-xs text-text-muted">
+                      {candidate.name} · {formatGEL(candidate.amount)}
+                    </p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => dismiss(candidate.name)}
+                  className="mt-1.5 shrink-0 rounded-full p-1.5 text-text-muted hover:bg-danger-soft hover:text-danger"
+                  aria-label={t("notARecurringBill")}
+                  title={t("notARecurringBill")}
+                >
+                  <X size={13} />
+                </button>
+              </div>
             ))}
 
             {dueSoon.map((r) => {

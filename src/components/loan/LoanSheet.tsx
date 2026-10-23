@@ -10,6 +10,7 @@ import { compareLoanOffers, type LoanType } from "@/lib/loan";
 import { scoreApplicant, ASSUMED_EXISTING_LOAN_PAYMENT_GEL, type LoanCurrency, type Region, type EmploymentType, type CreditHistory } from "@/lib/creditRisk";
 import { useTransactions } from "@/hooks/useTransactions";
 import { usePayments } from "@/hooks/usePayments";
+import { useDismissedRecurring } from "@/hooks/useDismissedRecurring";
 import { detectRecurringPayments, isLikelyExistingLoan } from "@/lib/recurringDetect";
 import { formatGEL } from "@/lib/format";
 import { useLanguage } from "@/lib/LanguageContext";
@@ -69,6 +70,7 @@ export function LoanSheet({ open, onClose, initialMode = "compare" }: LoanSheetP
   const navigate = useNavigate();
   const { monthlyTotals, expenses } = useTransactions();
   const { payments } = usePayments();
+  const { dismissedNames } = useDismissedRecurring();
 
   const [mode, setMode] = useState<LoanMode>(initialMode);
   useEffect(() => {
@@ -90,9 +92,10 @@ export function LoanSheet({ open, onClose, initialMode = "compare" }: LoanSheetP
 
   const detectedLoans = useMemo(() => {
     const rows = expenses.map((e) => ({ note: e.note, amount: e.amount, date: e.date, category: e.category }));
-    const candidates = detectRecurringPayments(rows, payments.map((p) => p.name));
+    const excluded = [...payments.map((p) => p.name), ...dismissedNames];
+    const candidates = detectRecurringPayments(rows, excluded);
     return candidates.filter((c) => isLikelyExistingLoan(c.name));
-  }, [expenses, payments]);
+  }, [expenses, payments, dismissedNames]);
 
   // Pre-fills from the user's own transaction history each time the sheet opens, but stays a
   // normal editable field — this is a suggestion, not something silently assumed for the model.
