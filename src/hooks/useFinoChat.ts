@@ -146,9 +146,10 @@ export function useFinoChat() {
 
   async function persistMessage(message: ChatMessage) {
     if (!user || !isSupabaseConfigured) return;
-    await supabase
+    const { error: insertError } = await supabase
       .from("chat_messages")
       .insert({ user_id: user.id, role: message.role, text: message.text, action: message.action ?? null });
+    if (insertError) console.error("Failed to persist chat message:", insertError.message);
   }
 
   async function sendMessage(text: string) {
@@ -159,7 +160,7 @@ export function useFinoChat() {
     setInput("");
     setError(null);
     setLoading(true);
-    persistMessage(userMessage);
+    await persistMessage(userMessage);
 
     const { data, error: fnError } = await supabase.functions.invoke("chat", {
       body: {
@@ -190,7 +191,7 @@ export function useFinoChat() {
       action: data?.action ?? undefined,
     };
     setMessages((prev) => [...prev, assistantMessage]);
-    persistMessage(assistantMessage);
+    await persistMessage(assistantMessage);
     refreshReminders();
   }
 
