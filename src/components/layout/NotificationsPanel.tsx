@@ -34,20 +34,18 @@ export function NotificationsPanel() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  const recurringCandidate = useMemo(() => {
-    const rows = expenses.map((e) => ({ note: e.note, amount: e.amount, date: e.date }));
-    const candidates = detectRecurringPayments(rows, payments.map((p) => p.name));
-    return candidates[0] ?? null;
+  const recurringCandidates = useMemo(() => {
+    const rows = expenses.map((e) => ({ note: e.note, amount: e.amount, date: e.date, category: e.category }));
+    return detectRecurringPayments(rows, payments.map((p) => p.name));
   }, [expenses, payments]);
 
   if (!user) return null;
 
-  const count = (recurringCandidate ? 1 : 0) + dueSoon.length;
+  const count = recurringCandidates.length + dueSoon.length;
 
-  function handleRecurringClick() {
-    if (!recurringCandidate) return;
+  function handleRecurringClick(candidate: (typeof recurringCandidates)[number]) {
     navigate("/calendar");
-    openSheet("calendar", { name: recurringCandidate.name, amount: recurringCandidate.amount, day_of_month: recurringCandidate.day_of_month });
+    openSheet("calendar", { name: candidate.name, amount: candidate.amount, day_of_month: candidate.day_of_month });
     setOpen(false);
   }
 
@@ -74,9 +72,10 @@ export function NotificationsPanel() {
           <div className="max-h-80 overflow-y-auto py-1">
             {count === 0 && <p className="px-4 py-4 text-center text-xs text-text-muted">{t("noNotifications")}</p>}
 
-            {recurringCandidate && (
+            {recurringCandidates.map((candidate) => (
               <button
-                onClick={handleRecurringClick}
+                key={candidate.name}
+                onClick={() => handleRecurringClick(candidate)}
                 className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-surface"
               >
                 <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
@@ -85,11 +84,11 @@ export function NotificationsPanel() {
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-text-primary">{t("draftDetectedTitle")}</p>
                   <p className="mt-0.5 truncate text-xs text-text-muted">
-                    {recurringCandidate.name} · {formatGEL(recurringCandidate.amount)}
+                    {candidate.name} · {formatGEL(candidate.amount)}
                   </p>
                 </div>
               </button>
-            )}
+            ))}
 
             {dueSoon.map((r) => {
               const days = daysUntil(r.due_date);

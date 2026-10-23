@@ -267,7 +267,7 @@ async function checkLoanApprovalHandler(_supabase: SupabaseClient, _userId: stri
 async function detectRecurringPaymentsHandler(supabase: SupabaseClient, userId: string, _input: Record<string, unknown>): Promise<ToolResult> {
   const { data: expenses, error: txError } = await supabase
     .from("transactions")
-    .select("note, amount, date")
+    .select("note, amount, date, category")
     .eq("type", "expense");
   if (txError) return { summary: `Error reading transactions: ${txError.message}` };
 

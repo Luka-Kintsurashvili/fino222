@@ -6,7 +6,14 @@ export interface ExpenseRow {
   note: string;
   amount: number;
   date: string; // YYYY-MM-DD
+  category?: string | null;
 }
+
+// Day-to-day discretionary spending (groceries, taxis, nights out) can coincidentally repeat
+// at a similar amount and day without being a "bill" anyone would want on a payment calendar —
+// recurring detection is only useful for things like rent, utilities, subscriptions and loan
+// repayments, so these categories are excluded even if they otherwise match the pattern.
+const VARIABLE_SPENDING_CATEGORIES = new Set(["food", "transport", "entertainment"]);
 
 export interface RecurringCandidate {
   name: string;
@@ -26,6 +33,15 @@ function stddev(values: number[], avg: number): number {
   return Math.sqrt(mean(values.map((v) => (v - avg) ** 2)));
 }
 
+const LOAN_KEYWORDS = ["სესხ", "კრედიტ", "განვადება", "loan", "credit", "installment"];
+
+/** Heuristic only — flags a recurring payment whose note reads like a loan/installment
+ * repayment, so it can be suggested (not assumed) as an existing loan in the credit check. */
+export function isLikelyExistingLoan(name: string): boolean {
+  const lower = name.toLowerCase();
+  return LOAN_KEYWORDS.some((k) => lower.includes(k));
+}
+
 export function detectRecurringPayments(expenses: ExpenseRow[], existingPaymentNames: string[]): RecurringCandidate[] {
   const existing = new Set(existingPaymentNames.map((n) => n.trim().toLowerCase()));
   const groups = new Map<string, ExpenseRow[]>();
@@ -41,6 +57,8 @@ export function detectRecurringPayments(expenses: ExpenseRow[], existingPaymentN
   const candidates: RecurringCandidate[] = [];
 
   for (const [name, rows] of groups) {
+    if (rows[0].category && VARIABLE_SPENDING_CATEGORIES.has(rows[0].category)) continue;
+
     const months = new Set(rows.map((r) => r.date.slice(0, 7)));
     if (months.size < 2) continue;
 

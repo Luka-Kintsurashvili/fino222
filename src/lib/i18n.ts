@@ -255,6 +255,10 @@ export const translations = {
   creditHistorySome: { ka: "მცირე", en: "Some" },
   creditHistoryLong: { ka: "გრძელი", en: "Long" },
   existingLoansLabel: { ka: "არსებული სესხები", en: "Existing loans" },
+  existingLoansDetectedHint: {
+    ka: "ფინომ თქვენს ტრანზაქციებში იპოვა {count} განმეორებადი გადახდა, რომელიც სესხს ჰგავს — საჭიროების შემთხვევაში შეასწორეთ.",
+    en: "Fino found {count} recurring payment(s) in your transactions that look like a loan — adjust if that's not right.",
+  },
   yearsAtJobLabel: { ka: "სამსახურის სტაჟი (წლები)", en: "Years at job" },
   askFinoButton: { ka: "Fino-ს კითხვა ამაზე", en: "Ask Fino about this" },
   banksCompared: { ka: "{count} ბანკი", en: "{count} banks" },

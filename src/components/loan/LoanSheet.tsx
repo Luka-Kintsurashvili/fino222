@@ -9,6 +9,8 @@ import { RingProgress } from "@/components/ui/RingProgress";
 import { compareLoanOffers, type LoanType } from "@/lib/loan";
 import { scoreApplicant, type LoanCurrency, type Region, type EmploymentType, type CreditHistory } from "@/lib/creditRisk";
 import { useTransactions } from "@/hooks/useTransactions";
+import { usePayments } from "@/hooks/usePayments";
+import { detectRecurringPayments, isLikelyExistingLoan } from "@/lib/recurringDetect";
 import { formatGEL } from "@/lib/format";
 import { useLanguage } from "@/lib/LanguageContext";
 import type { TranslationKey } from "@/lib/i18n";
@@ -65,7 +67,8 @@ function ChoiceGrid<T extends string>({ options, value, onChange }: { options: {
 export function LoanSheet({ open, onClose, initialMode = "compare" }: LoanSheetProps) {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const { monthlyTotals } = useTransactions();
+  const { monthlyTotals, expenses } = useTransactions();
+  const { payments } = usePayments();
 
   const [mode, setMode] = useState<LoanMode>(initialMode);
   useEffect(() => {
@@ -84,6 +87,19 @@ export function LoanSheet({ open, onClose, initialMode = "compare" }: LoanSheetP
   const [creditHistory, setCreditHistory] = useState<CreditHistory>("some");
   const [existingLoans, setExistingLoans] = useState(0);
   const [yearsAtJob, setYearsAtJob] = useState(3);
+
+  const detectedLoans = useMemo(() => {
+    const rows = expenses.map((e) => ({ note: e.note, amount: e.amount, date: e.date, category: e.category }));
+    const candidates = detectRecurringPayments(rows, payments.map((p) => p.name));
+    return candidates.filter((c) => isLikelyExistingLoan(c.name));
+  }, [expenses, payments]);
+
+  // Pre-fills from the user's own transaction history each time the sheet opens, but stays a
+  // normal editable field — this is a suggestion, not something silently assumed for the model.
+  useEffect(() => {
+    if (open) setExistingLoans(detectedLoans.length);
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const typeOptions: { value: LoanType; label: string }[] = [
     { value: "consumer", label: t("loanTypeConsumer") },
@@ -270,7 +286,14 @@ export function LoanSheet({ open, onClose, initialMode = "compare" }: LoanSheetP
             <ChoiceGrid options={CREDIT_HISTORIES} value={creditHistory} onChange={setCreditHistory} />
           </div>
           <NumberField label={t("yearsAtJobLabel")} value={yearsAtJob} onChange={setYearsAtJob} step={1} min={0} />
-          <NumberField label={t("existingLoansLabel")} value={existingLoans} onChange={setExistingLoans} step={1} min={0} />
+          <div>
+            <NumberField label={t("existingLoansLabel")} value={existingLoans} onChange={setExistingLoans} step={1} min={0} />
+            {detectedLoans.length > 0 && (
+              <p className="mt-1.5 text-[11px] text-text-muted">
+                {t("existingLoansDetectedHint").replace("{count}", String(detectedLoans.length))}
+              </p>
+            )}
+          </div>
 
           {result && (
             <>

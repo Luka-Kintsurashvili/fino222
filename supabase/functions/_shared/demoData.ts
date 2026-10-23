@@ -44,6 +44,7 @@ export function generateSeedTransactions(): DemoTransaction[] {
     rows.push({ type: "expense", amount: 800, category: "housing", note: "ბინის ქირა", date: dateStr(y, m, 3), external_id: `demo-seed-${idx++}` });
     rows.push({ type: "expense", amount: 82, category: "housing", note: "საქართველოს ენერგია", date: dateStr(y, m, 5), external_id: `demo-seed-${idx++}` });
     rows.push({ type: "expense", amount: 45, category: "housing", note: "Silknet ინტერნეტი", date: dateStr(y, m, 6), external_id: `demo-seed-${idx++}` });
+    rows.push({ type: "expense", amount: 280, category: null, note: "სესხის გადახდა", date: dateStr(y, m, 12), external_id: `demo-seed-${idx++}` });
 
     const foodAmounts = [42, 68, 55, 90];
     for (let i = 0; i < 4; i++) {

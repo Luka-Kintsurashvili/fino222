@@ -8,7 +8,14 @@ export interface ExpenseRow {
   note: string;
   amount: number;
   date: string; // YYYY-MM-DD
+  category?: string | null;
 }
+
+// Day-to-day discretionary spending (groceries, taxis, nights out) can coincidentally repeat
+// at a similar amount and day without being a "bill" anyone would want on a payment calendar —
+// recurring detection is only useful for things like rent, utilities, subscriptions and loan
+// repayments, so these categories are excluded even if they otherwise match the pattern.
+const VARIABLE_SPENDING_CATEGORIES = new Set(["food", "transport", "entertainment"]);
 
 export interface RecurringCandidate {
   name: string;
@@ -43,6 +50,8 @@ export function detectRecurringPayments(expenses: ExpenseRow[], existingPaymentN
   const candidates: RecurringCandidate[] = [];
 
   for (const [name, rows] of groups) {
+    if (rows[0].category && VARIABLE_SPENDING_CATEGORIES.has(rows[0].category)) continue;
+
     const months = new Set(rows.map((r) => r.date.slice(0, 7)));
     if (months.size < 2) continue; // needs to repeat across at least 2 different months
 
