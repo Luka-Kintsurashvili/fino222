@@ -8,6 +8,7 @@ import { compareLoanOffers, type LoanType } from "./loanMath.ts";
 import { BUDGET_RULES, seedAmountsFromRule } from "./budgetMath.ts";
 import { scoreApplicant, type ApplicantInput, type Region, type EmploymentType, type CreditHistory, type LoanCurrency } from "./creditRisk.ts";
 import { detectRecurringPayments } from "./recurringDetect.ts";
+import { detectFrequentStores } from "./discountMatch.ts";
 
 export type TileTarget = "funds" | "calendar" | "loan" | "networth" | "budget" | "credit";
 
@@ -295,6 +296,81 @@ async function detectRecurringPaymentsHandler(supabase: SupabaseClient, userId: 
   };
 }
 
+async function rememberFactHandler(supabase: SupabaseClient, userId: string, input: Record<string, unknown>): Promise<ToolResult> {
+  const fact = typeof input.fact === "string" ? input.fact.trim() : "";
+  if (!fact) return { summary: "Error: fact is required and must be a non-empty string." };
+
+  const { error } = await supabase.from("user_memory").insert({ user_id: userId, fact });
+  if (error) return { summary: `Error saving memory: ${error.message}` };
+
+  return { summary: `Remembered: "${fact}". Confirm to the user what was saved, in your own words, so they can correct it if it's wrong.` };
+}
+
+async function checkStoreDiscountsHandler(supabase: SupabaseClient, _userId: string, _input: Record<string, unknown>): Promise<ToolResult> {
+  const { data: storeRows, error: storeError } = await supabase
+    .from("discount_offers")
+    .select("store_slug, store_name_ka, store_name_en")
+    .limit(2000);
+  if (storeError) return { summary: `Error reading tracked stores: ${storeError.message}` };
+
+  const knownStores = [...new Map((storeRows ?? []).map((s) => [s.store_slug, s])).values()].map((s) => ({
+    slug: s.store_slug,
+    name_ka: s.store_name_ka,
+    name_en: s.store_name_en,
+  }));
+  if (knownStores.length === 0) {
+    return { summary: "No discount data has been synced yet (ekalata-sync hasn't run)." };
+  }
+
+  const { data: expenses, error: txError } = await supabase.from("transactions").select("note, amount").eq("type", "expense");
+  if (txError) return { summary: `Error reading transactions: ${txError.message}` };
+
+  const frequentStores = detectFrequentStores(expenses ?? [], knownStores);
+  if (frequentStores.length === 0) {
+    return {
+      summary:
+        "The user's transaction history doesn't match any store ekalata.gov.ge tracks (Carrefour, Nikora, Goodwill, Spar, Magniti, and others) — no real-store spending pattern to match discounts against.",
+    };
+  }
+
+  const topSlugs = frequentStores.slice(0, 3).map((s) => s.storeSlug);
+  const { data: offers, error: offerError } = await supabase
+    .from("discount_offers")
+    .select("store_name_ka, product_name_ka, price_new, price_old")
+    .in("store_slug", topSlugs)
+    .not("price_old", "is", null)
+    .order("price_new", { ascending: true });
+  if (offerError) return { summary: `Error reading discount offers: ${offerError.message}` };
+
+  const genuineDiscounts = (offers ?? [])
+    .filter((o) => o.price_old != null && Number(o.price_old) > Number(o.price_new))
+    .map((o) => ({ ...o, pct: ((Number(o.price_old) - Number(o.price_new)) / Number(o.price_old)) * 100 }))
+    .sort((a, b) => b.pct - a.pct)
+    .slice(0, 8);
+
+  if (genuineDiscounts.length === 0) {
+    return {
+      summary: `The user most often shops at ${frequentStores
+        .slice(0, 3)
+        .map((s) => s.storeNameKa)
+        .join(", ")}, but no current discounts were found there in today's ekalata.gov.ge snapshot.`,
+    };
+  }
+
+  const lines = genuineDiscounts.map(
+    (o) => `${o.store_name_ka}: ${o.product_name_ka} — ${o.price_new} GEL (was ${o.price_old} GEL, -${o.pct.toFixed(0)}%)`
+  );
+
+  return {
+    summary: `The user's most-frequented real stores (from their own transaction history) are ${frequentStores
+      .slice(0, 3)
+      .map((s) => s.storeNameKa)
+      .join(", ")}. Real current discounts there (source: ekalata.gov.ge, Georgia's government price-transparency tool):\n${lines.join(
+      "\n"
+    )}\nMention this naturally, and say where the data is from if asked — never present it as something you inferred, it's a real daily snapshot.`,
+  };
+}
+
 export const TOOLS: ToolDefinition[] = [
   {
     name: "add_calendar_reminder",
@@ -434,6 +510,26 @@ export const TOOLS: ToolDefinition[] = [
       "Scans the user's own transaction history for a payment that repeats (same note, similar amount, similar day of month) across at least 2 different months — like rent or a subscription — and are not already tracked as a recurring bill. Use this when the user asks Fino to check their spending for recurring payments, or asks whether anything looks like a regular bill. This only DRAFTS a suggestion for the user to review and approve themselves — it never saves anything automatically.",
     parameters: { type: "OBJECT", properties: {} },
     handler: detectRecurringPaymentsHandler,
+  },
+  {
+    name: "remember_fact",
+    description:
+      "Saves a short, durable fact about the user for future conversations — a stated preference, usual shopping habit, goal, or similar detail they told you directly. Only call this for something the user explicitly said, never something you inferred or guessed. Always tell the user afterward what you saved, in plain language, so they can correct it if it's wrong.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        fact: { type: "STRING", description: "The fact to remember, written as a short, self-contained statement (e.g. 'Usually buys rice, chicken, and milk' or 'Shops mainly at Nikora and Carrefour')." },
+      },
+      required: ["fact"],
+    },
+    handler: rememberFactHandler,
+  },
+  {
+    name: "check_store_discounts",
+    description:
+      "Finds real current discounts at the stores the user actually shops at most, by matching their own transaction history against ekalata.gov.ge (Georgia's government price-transparency tool, synced daily). Use this when the user asks about saving money on groceries/shopping, or when it's naturally relevant to a conversation about lowering expenses. Only reports real, dated discount data — never invents prices or stores.",
+    parameters: { type: "OBJECT", properties: {} },
+    handler: checkStoreDiscountsHandler,
   },
 ];
 

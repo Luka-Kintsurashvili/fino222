@@ -26,3 +26,5 @@ dist-ssr
 
 # ML training intermediates (regenerate with ml/train.py)
 ml/*.joblib
+.ekalata_sync_secret.local
+.scratch/

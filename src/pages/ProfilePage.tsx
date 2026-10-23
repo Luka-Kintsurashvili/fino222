@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { CircleAlert, CircleCheck } from "lucide-react";
+import { CircleAlert, CircleCheck, Brain, X } from "lucide-react";
 import { SubPageHeader } from "@/components/ui/SubPageHeader";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { useAuth } from "@/lib/AuthContext";
+import { useUserMemory } from "@/hooks/useUserMemory";
+import { useLanguage } from "@/lib/LanguageContext";
 import { supabase } from "@/lib/supabase";
 
 export function ProfilePage() {
@@ -14,7 +16,47 @@ export function ProfilePage() {
   if (authLoading) return null;
   if (!user) return <Navigate to="/login" replace />;
 
-  return <ProfileForm />;
+  return (
+    <>
+      <ProfileForm />
+      <MemorySection />
+    </>
+  );
+}
+
+function MemorySection() {
+  const { t } = useLanguage();
+  const { facts, loading, removeFact } = useUserMemory();
+
+  return (
+    <Card className="mt-5 space-y-3">
+      <div className="flex items-center gap-2">
+        <Brain size={16} className="text-accent" />
+        <h2 className="text-sm font-bold text-text-primary">{t("whatFinoKnows")}</h2>
+      </div>
+      <p className="text-xs text-text-muted">{t("whatFinoKnowsHint")}</p>
+
+      {!loading && facts.length === 0 && <p className="py-2 text-center text-xs text-text-muted">{t("noMemoryYet")}</p>}
+
+      {facts.length > 0 && (
+        <ul className="space-y-2">
+          {facts.map((f) => (
+            <li key={f.id} className="flex items-center justify-between gap-2 rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
+              <span className="text-sm text-text-primary">{f.fact}</span>
+              <button
+                type="button"
+                onClick={() => removeFact(f.id)}
+                className="shrink-0 rounded-full p-1 text-text-muted hover:bg-danger-soft hover:text-danger"
+                aria-label={t("delete")}
+              >
+                <X size={14} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
 }
 
 function ProfileForm() {

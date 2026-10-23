@@ -262,3 +262,45 @@ create policy "Users manage their own funds"
   on public.funds for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- Daily snapshot of real discounted grocery prices from ekalata.gov.ge (Georgia's government
+-- price-transparency tool), synced by supabase/functions/ekalata-sync. Shared reference data,
+-- not per-user — readable by anyone, writable only by the sync function (service role).
+create table if not exists public.discount_offers (
+  id uuid primary key default gen_random_uuid(),
+  ekalata_product_id integer not null,
+  store_slug text not null,
+  store_name_ka text not null,
+  store_name_en text not null,
+  category_slug text,
+  product_name_ka text not null,
+  price_new numeric not null,
+  price_old numeric,
+  valid_from date,
+  valid_date date,
+  fetched_at timestamptz not null default now(),
+  unique (store_slug, ekalata_product_id)
+);
+
+alter table public.discount_offers enable row level security;
+
+create policy "Anyone can read discount offers"
+  on public.discount_offers for select
+  using (true);
+
+-- Short facts Fino is explicitly told to remember about a user (stated preferences, usual
+-- products, goals), written only via the remember_fact tool and recalled verbatim in the chat
+-- system prompt — never regenerated or inferred, so the model can't hallucinate what it "knows".
+create table if not exists public.user_memory (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  fact text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.user_memory enable row level security;
+
+create policy "Users manage their own memory"
+  on public.user_memory for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);

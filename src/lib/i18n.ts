@@ -58,6 +58,12 @@ export const translations = {
   notifications: { ka: "შეტყობინებები", en: "Notifications" },
   noNotifications: { ka: "ახალი შეტყობინებები არ არის", en: "No new notifications" },
   notARecurringBill: { ka: "ეს არ არის რეგულარული გადახდა", en: "Not a recurring bill" },
+  whatFinoKnows: { ka: "რას იცის ფინო შენზე", en: "What Fino knows about you" },
+  whatFinoKnowsHint: {
+    ka: "ეს ფაქტები ფინომ დაიმახსოვრა საუბრებიდან — შეგიძლია წაშალო ნებისმიერი, რომელიც არასწორია.",
+    en: "These are facts Fino remembered from your conversations — delete anything that's wrong.",
+  },
+  noMemoryYet: { ka: "ფინომ ჯერ არაფერი დაიმახსოვრა", en: "Fino hasn't remembered anything yet" },
   settings: { ka: "პარამეტრები", en: "Settings" },
   logout: { ka: "გასვლა", en: "Log out" },
   login: { ka: "შესვლა", en: "Log in" },
