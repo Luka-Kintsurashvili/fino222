@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Sparkles, CalendarClock, TriangleAlert, X } from "lucide-react";
+import { Bell, Sparkles, CalendarClock, TriangleAlert, Gauge, X } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { useAccounts } from "@/hooks/useAccounts";
 import { useTransactions } from "@/hooks/useTransactions";
 import { usePayments } from "@/hooks/usePayments";
 import { useReminders } from "@/hooks/useReminders";
 import { useDismissedRecurring } from "@/hooks/useDismissedRecurring";
+import { useBudgetPlan } from "@/hooks/useBudgetPlan";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useQuickSheet } from "@/lib/QuickSheetContext";
 import { detectRecurringPayments } from "@/lib/recurringDetect";
 import { detectRecklessSpend } from "@/lib/recklessSpendDetect";
+import { currentMonthExpensesByCategory, detectBudgetPace } from "@/lib/budgetPace";
+import { budgetCategories } from "@/data/budgetCategories";
 import { formatGEL } from "@/lib/format";
 import { useLanguage } from "@/lib/LanguageContext";
 
@@ -29,6 +32,7 @@ export function NotificationsPanel() {
   const { payments } = usePayments();
   const { dueSoon } = useReminders();
   const { dismissedNames, dismiss } = useDismissedRecurring();
+  const { plan } = useBudgetPlan();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -48,13 +52,20 @@ export function NotificationsPanel() {
 
   const recklessAlert = useMemo(() => detectRecklessSpend(expenses, totalBalance), [expenses, totalBalance]);
 
+  const budgetPaceAlert = useMemo(() => {
+    if (!plan) return null;
+    const spentByCategory = currentMonthExpensesByCategory(expenses);
+    return detectBudgetPace(plan.amounts, spentByCategory);
+  }, [plan, expenses]);
+
   const itemIds = useMemo(
     () => [
       ...recurringCandidates.map((c) => `recur:${c.name}`),
       ...dueSoon.map((r) => `due:${r.id}`),
       ...(recklessAlert ? [`reckless:${recklessAlert.transactionId}`] : []),
+      ...(budgetPaceAlert ? [`pace:${budgetPaceAlert.category}`] : []),
     ],
-    [recurringCandidates, dueSoon, recklessAlert]
+    [recurringCandidates, dueSoon, recklessAlert, budgetPaceAlert]
   );
 
   // Clears the unread dot once the user has actually opened the panel, per item — a new item
@@ -64,7 +75,7 @@ export function NotificationsPanel() {
 
   if (!user) return null;
 
-  const count = recurringCandidates.length + dueSoon.length + (recklessAlert ? 1 : 0);
+  const count = recurringCandidates.length + dueSoon.length + (recklessAlert ? 1 : 0) + (budgetPaceAlert ? 1 : 0);
 
   function handleToggle() {
     setOpen((prev) => {
@@ -90,6 +101,17 @@ export function NotificationsPanel() {
     const prefillInput = t("recklessSpendPrompt")
       .replace("{note}", recklessAlert.note)
       .replace("{amount}", String(recklessAlert.amount));
+    navigate("/chat", { state: { prefillInput } });
+    setOpen(false);
+  }
+
+  function handleBudgetPaceClick() {
+    if (!budgetPaceAlert) return;
+    const categoryLabel = budgetCategories.find((c) => c.key === budgetPaceAlert.category)?.label ?? budgetPaceAlert.category;
+    const prefillInput = t("budgetPacePrompt")
+      .replace("{category}", categoryLabel)
+      .replace("{spent}", String(Math.round(budgetPaceAlert.spent)))
+      .replace("{budgeted}", String(Math.round(budgetPaceAlert.budgeted)));
     navigate("/chat", { state: { prefillInput } });
     setOpen(false);
   }
@@ -167,6 +189,28 @@ export function NotificationsPanel() {
                 </div>
               </button>
             )}
+
+            {budgetPaceAlert &&
+              (() => {
+                const categoryLabel = budgetCategories.find((c) => c.key === budgetPaceAlert.category)?.label ?? budgetPaceAlert.category;
+                return (
+                  <button onClick={handleBudgetPaceClick} className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-surface">
+                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-warning-soft text-warning">
+                      <Gauge size={13} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-text-primary">{t("budgetPaceTitle")}</p>
+                      <p className="mt-0.5 truncate text-xs text-text-muted">
+                        {t("budgetPaceBody")
+                          .replace("{category}", categoryLabel)
+                          .replace("{spent}", String(Math.round(budgetPaceAlert.spent)))
+                          .replace("{budgeted}", String(Math.round(budgetPaceAlert.budgeted)))
+                          .replace("{projected}", String(Math.round(budgetPaceAlert.projectedEndOfMonth)))}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })()}
           </div>
         </div>
       )}

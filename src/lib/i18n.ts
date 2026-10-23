@@ -35,6 +35,15 @@ export const translations = {
     ka: "ვხედავ, რომ {note}-ზე {amount} ₾ დავხარჯე და ბალანსი დამიკლო — ეს დიდი თანხაა ჩემს დარჩენილ ფულთან შედარებით. რას მირჩევ?",
     en: "I just spent {amount} ₾ on {note} and it ate into my balance — that's a big chunk of what I have left. What do you suggest?",
   },
+  budgetPaceTitle: { ka: "ამ ტემპით ბიუჯეტს გადააჭარბებ", en: "On pace to blow your budget" },
+  budgetPaceBody: {
+    ka: "{category}: უკვე {spent} ₾ დახარჯული {budgeted} ₾-დან — ამ ტემპით თვის ბოლომდე ~{projected} ₾ გავა.",
+    en: "{category}: {spent} ₾ spent of {budgeted} ₾ already — on pace for ~{projected} ₾ by month end.",
+  },
+  budgetPacePrompt: {
+    ka: "{category} კატეგორიაზე უკვე {spent} ₾ დამიხარჯავს {budgeted} ₾-იანი ბიუჯეტიდან და ამ ტემპით თვის ბოლომდე გადავაჭარბებ. როგორ შევანელო?",
+    en: "I've already spent {spent} ₾ of my {budgeted} ₾ budget for {category} and I'm on pace to go over by month end. How should I slow down?",
+  },
   draftDetectedBody: {
     ka: "ეს არის ჩანაწერი, ჯერ არ არის დამატებული — შეამოწმე დეტალები და დაამტკიცე, თუ სწორია.",
     en: "This is a draft, not yet added — review the details and approve it if it looks right.",
@@ -224,6 +233,15 @@ export const translations = {
   budgetRuleLabel: { ka: "წესი", en: "Rule" },
   allocatedLabel: { ka: "გადანაწილებული", en: "Allocated" },
   perMonthSuffix: { ka: "/თვე", en: "/mo" },
+  saveBudgetButton: { ka: "ბიუჯეტის შენახვა", en: "Save budget" },
+  budgetSavedToast: { ka: "ბიუჯეტი შენახულია", en: "Budget saved" },
+  budgetRemainingTitle: { ka: "დარჩენილი ამ თვეში", en: "Remaining this month" },
+  budgetRemainingHint: {
+    ka: "ბიუჯეტის შენახვის შემდეგ აქ ნახავ, რამდენი დაგრჩა თითოეულ კატეგორიაზე ამ თვეში.",
+    en: "Once you save a budget, you'll see how much is left in each category this month.",
+  },
+  budgetSpentOf: { ka: "{spent} / {budgeted} ₾ დახარჯული", en: "{spent} / {budgeted} ₾ spent" },
+  budgetOverPace: { ka: "ამ ტემპით გადააჭარბებ ბიუჯეტს", en: "On pace to go over budget" },
 
   // Credit risk check
   navCredit: { ka: "სესხის შეფასება", en: "Loan approval estimate" },
