@@ -108,7 +108,8 @@ export function NotificationsPanel() {
   function handleBudgetPaceClick() {
     if (!budgetPaceAlert) return;
     const categoryLabel = budgetCategories.find((c) => c.key === budgetPaceAlert.category)?.label ?? budgetPaceAlert.category;
-    const prefillInput = t("budgetPacePrompt")
+    const promptKey = budgetPaceAlert.severity === "exceeded" ? "budgetExceededPrompt" : "budgetClosePrompt";
+    const prefillInput = t(promptKey)
       .replace("{category}", categoryLabel)
       .replace("{spent}", String(Math.round(budgetPaceAlert.spent)))
       .replace("{budgeted}", String(Math.round(budgetPaceAlert.budgeted)));
@@ -193,19 +194,21 @@ export function NotificationsPanel() {
             {budgetPaceAlert &&
               (() => {
                 const categoryLabel = budgetCategories.find((c) => c.key === budgetPaceAlert.category)?.label ?? budgetPaceAlert.category;
+                const exceeded = budgetPaceAlert.severity === "exceeded";
                 return (
                   <button onClick={handleBudgetPaceClick} className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-surface">
-                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-warning-soft text-warning">
+                    <span
+                      className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${exceeded ? "bg-danger-soft text-danger" : "bg-warning-soft text-warning"}`}
+                    >
                       <Gauge size={13} />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-text-primary">{t("budgetPaceTitle")}</p>
+                      <p className="text-sm font-medium text-text-primary">{t(exceeded ? "budgetExceededTitle" : "budgetCloseTitle")}</p>
                       <p className="mt-0.5 truncate text-xs text-text-muted">
-                        {t("budgetPaceBody")
+                        {t("budgetAlertBody")
                           .replace("{category}", categoryLabel)
                           .replace("{spent}", String(Math.round(budgetPaceAlert.spent)))
-                          .replace("{budgeted}", String(Math.round(budgetPaceAlert.budgeted)))
-                          .replace("{projected}", String(Math.round(budgetPaceAlert.projectedEndOfMonth)))}
+                          .replace("{budgeted}", String(Math.round(budgetPaceAlert.budgeted)))}
                       </p>
                     </div>
                   </button>

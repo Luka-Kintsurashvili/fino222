@@ -6,7 +6,7 @@ import { budgetRules } from "@/data/budgetRules";
 import { budgetCategories, seedAmountsFromRule, type BudgetCategoryKey } from "@/data/budgetCategories";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useBudgetPlan } from "@/hooks/useBudgetPlan";
-import { currentMonthExpensesByCategory, detectBudgetPace } from "@/lib/budgetPace";
+import { currentMonthExpensesByCategory } from "@/lib/budgetPace";
 import { formatGEL } from "@/lib/format";
 import { useLanguage } from "@/lib/LanguageContext";
 
@@ -42,10 +42,6 @@ export function BudgetSheet({ open, onClose }: BudgetSheetProps) {
   const totalAllocated = Object.values(amounts).reduce((sum, v) => sum + v, 0);
 
   const spentByCategory = useMemo(() => currentMonthExpensesByCategory(expenses), [expenses]);
-  const paceAlert = useMemo(
-    () => (plan ? detectBudgetPace(plan.amounts, spentByCategory) : null),
-    [plan, spentByCategory]
-  );
 
   async function handleSave() {
     const err = await savePlan({ monthlyIncome: income, ruleId, amounts });
@@ -147,7 +143,8 @@ export function BudgetSheet({ open, onClose }: BudgetSheetProps) {
               const spent = spentByCategory[key] ?? 0;
               const remaining = budgeted - spent;
               const pct = budgeted > 0 ? Math.min((spent / budgeted) * 100, 100) : 0;
-              const overPace = paceAlert?.category === key;
+              const exceeded = remaining < 0;
+              const close = !exceeded && budgeted > 0 && spent / budgeted >= 0.85;
               const Icon = def.icon;
               return (
                 <div key={key} className="rounded-xl border border-border-soft bg-surface p-3">
@@ -161,18 +158,18 @@ export function BudgetSheet({ open, onClose }: BudgetSheetProps) {
                         {t("budgetSpentOf").replace("{spent}", formatGEL(spent).replace(" ₾", "")).replace("{budgeted}", formatGEL(budgeted).replace(" ₾", ""))}
                       </p>
                     </div>
-                    <p className={`shrink-0 text-sm font-bold tabular ${remaining < 0 ? "text-danger" : "text-text-primary"}`}>
-                      {formatGEL(remaining)}
-                    </p>
+                    <p className={`shrink-0 text-sm font-bold tabular ${exceeded ? "text-danger" : "text-text-primary"}`}>{formatGEL(remaining)}</p>
                   </div>
                   <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border-soft">
                     <div
-                      className={`h-full rounded-full ${remaining < 0 ? "bg-danger" : overPace ? "bg-warning" : ""}`}
-                      style={{ width: `${pct}%`, backgroundColor: remaining < 0 || overPace ? undefined : def.color }}
+                      className={`h-full rounded-full ${exceeded ? "bg-danger" : close ? "bg-warning" : ""}`}
+                      style={{ width: `${pct}%`, backgroundColor: exceeded || close ? undefined : def.color }}
                     />
                   </div>
-                  {(overPace || remaining < 0) && (
-                    <p className={`mt-1.5 text-[11px] font-medium ${remaining < 0 ? "text-danger" : "text-warning"}`}>{t("budgetOverPace")}</p>
+                  {(exceeded || close) && (
+                    <p className={`mt-1.5 text-[11px] font-medium ${exceeded ? "text-danger" : "text-warning"}`}>
+                      {exceeded ? t("budgetExceeded") : t("budgetClose")}
+                    </p>
                   )}
                 </div>
               );

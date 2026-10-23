@@ -1,5 +1,6 @@
-// Deterministic "on pace to blow the monthly category budget" detection — pure arithmetic
-// over the user's saved budget plan and their own transactions, no guessing.
+// Deterministic "exceeded or close to the monthly category budget" detection — pure arithmetic
+// over the user's saved budget plan and their own real transactions. Reports hard current facts
+// (spent vs. budgeted) rather than projecting/guessing a future outcome.
 
 import type { BudgetCategoryKey } from "@/data/budgetCategories";
 
@@ -15,27 +16,23 @@ export function currentMonthExpensesByCategory(
   return totals;
 }
 
+export type BudgetAlertSeverity = "exceeded" | "close";
+
 export interface BudgetPaceAlert {
   category: BudgetCategoryKey;
+  severity: BudgetAlertSeverity;
   spent: number;
   budgeted: number;
-  projectedEndOfMonth: number;
 }
 
 const MIN_BUDGET_TO_FLAG = 30; // ignore trivially small category budgets
-const OVER_PACE_MARGIN = 1.15; // projected end-of-month spend must exceed budget by at least 15%
+const CLOSE_THRESHOLD = 0.85; // 85%+ of budget spent counts as "close"
 
-/** Flags the single category furthest over pace to exceed its budget by month end, if any. */
+/** Flags the single category closest to or furthest past its budget this month, if any. */
 export function detectBudgetPace(
   amounts: Partial<Record<BudgetCategoryKey, number>>,
-  spentByCategory: Partial<Record<BudgetCategoryKey, number>>,
-  today: Date = new Date()
+  spentByCategory: Partial<Record<BudgetCategoryKey, number>>
 ): BudgetPaceAlert | null {
-  const dayOfMonth = today.getDate();
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const monthFraction = dayOfMonth / daysInMonth;
-  if (monthFraction <= 0) return null;
-
   let worst: BudgetPaceAlert | null = null;
   let worstRatio = 0;
 
@@ -43,11 +40,11 @@ export function detectBudgetPace(
     const budgeted = amounts[key];
     if (!budgeted || budgeted < MIN_BUDGET_TO_FLAG) continue;
     const spent = spentByCategory[key] ?? 0;
-    const projectedEndOfMonth = spent / monthFraction;
-    const ratio = projectedEndOfMonth / budgeted;
-    if (ratio > OVER_PACE_MARGIN && ratio > worstRatio) {
+    const ratio = spent / budgeted;
+    if (ratio < CLOSE_THRESHOLD) continue;
+    if (ratio > worstRatio) {
       worstRatio = ratio;
-      worst = { category: key, spent, budgeted, projectedEndOfMonth };
+      worst = { category: key, severity: ratio >= 1 ? "exceeded" : "close", spent, budgeted };
     }
   }
 

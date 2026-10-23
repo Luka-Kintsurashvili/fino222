@@ -35,14 +35,16 @@ export const translations = {
     ka: "ვხედავ, რომ {note}-ზე {amount} ₾ დავხარჯე და ბალანსი დამიკლო — ეს დიდი თანხაა ჩემს დარჩენილ ფულთან შედარებით. რას მირჩევ?",
     en: "I just spent {amount} ₾ on {note} and it ate into my balance — that's a big chunk of what I have left. What do you suggest?",
   },
-  budgetPaceTitle: { ka: "ამ ტემპით ბიუჯეტს გადააჭარბებ", en: "On pace to blow your budget" },
-  budgetPaceBody: {
-    ka: "{category}: უკვე {spent} ₾ დახარჯული {budgeted} ₾-დან — ამ ტემპით თვის ბოლომდე ~{projected} ₾ გავა.",
-    en: "{category}: {spent} ₾ spent of {budgeted} ₾ already — on pace for ~{projected} ₾ by month end.",
+  budgetExceededTitle: { ka: "ბიუჯეტს გადააჭარბე", en: "You've gone over budget" },
+  budgetCloseTitle: { ka: "ბიუჯეტს უახლოვდები", en: "Getting close to your budget" },
+  budgetAlertBody: { ka: "{category}: {spent} / {budgeted} ₾ დახარჯული", en: "{category}: {spent} / {budgeted} ₾ spent" },
+  budgetExceededPrompt: {
+    ka: "{category} კატეგორიაზე უკვე {spent} ₾ დამიხარჯავს {budgeted} ₾-იანი ბიუჯეტიდან და გადავაჭარბე კიდეც. რას მირჩევ?",
+    en: "I've already spent {spent} ₾ of my {budgeted} ₾ budget for {category} and gone over it. What do you suggest?",
   },
-  budgetPacePrompt: {
-    ka: "{category} კატეგორიაზე უკვე {spent} ₾ დამიხარჯავს {budgeted} ₾-იანი ბიუჯეტიდან და ამ ტემპით თვის ბოლომდე გადავაჭარბებ. როგორ შევანელო?",
-    en: "I've already spent {spent} ₾ of my {budgeted} ₾ budget for {category} and I'm on pace to go over by month end. How should I slow down?",
+  budgetClosePrompt: {
+    ka: "{category} კატეგორიაზე უკვე {spent} ₾ დამიხარჯავს {budgeted} ₾-იანი ბიუჯეტიდან და ბოლოსკენ ვარ. როგორ შევანელო?",
+    en: "I've already spent {spent} ₾ of my {budgeted} ₾ budget for {category} and I'm close to the limit. How should I slow down?",
   },
   draftDetectedBody: {
     ka: "ეს არის ჩანაწერი, ჯერ არ არის დამატებული — შეამოწმე დეტალები და დაამტკიცე, თუ სწორია.",
@@ -241,7 +243,8 @@ export const translations = {
     en: "Once you save a budget, you'll see how much is left in each category this month.",
   },
   budgetSpentOf: { ka: "{spent} / {budgeted} ₾ დახარჯული", en: "{spent} / {budgeted} ₾ spent" },
-  budgetOverPace: { ka: "ამ ტემპით გადააჭარბებ ბიუჯეტს", en: "On pace to go over budget" },
+  budgetExceeded: { ka: "ბიუჯეტი გადააჭარბე", en: "Over budget" },
+  budgetClose: { ka: "ბიუჯეტს უახლოვდები", en: "Close to budget" },
 
   // Credit risk check
   navCredit: { ka: "სესხის შეფასება", en: "Loan approval estimate" },
