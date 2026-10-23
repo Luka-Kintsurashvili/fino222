@@ -1,5 +1,4 @@
 import { Landmark } from "lucide-react";
-import { banks } from "@/data/banks";
 import { useLanguage } from "@/lib/LanguageContext";
 
 interface LoanQuickTileProps {
@@ -18,8 +17,7 @@ export function LoanQuickTile({ onClick }: LoanQuickTileProps) {
         <Landmark size={13} />
       </span>
       <div className="min-w-0 w-full">
-        <p className="text-[10px] text-text-muted">{t("navLoan")}</p>
-        <p className="truncate font-mono text-xs font-bold tabular text-text-primary">{t("banksCompared").replace("{count}", String(banks.length))}</p>
+        <p className="truncate text-[10px] text-text-muted">{t("navLoan")}</p>
       </div>
     </button>
   );

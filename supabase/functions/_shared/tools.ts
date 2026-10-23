@@ -89,7 +89,7 @@ async function createFundHandler(supabase: SupabaseClient, userId: string, input
     .select()
     .single();
 
-  if (error) return { summary: `Error creating fund: ${error.message}` };
+  if (error) return { summary: `Error creating goal: ${error.message}` };
 
   const contributionPart =
     contributionValue > 0
@@ -98,8 +98,8 @@ async function createFundHandler(supabase: SupabaseClient, userId: string, input
         : ` with a plan to save ${contributionValue} GEL per month`
       : "";
   return {
-    summary: `Created fund "${data.name}" with a target of ${data.target_amount} GEL${contributionPart}.`,
-    action: { target: "funds", label: "View fund" },
+    summary: `Created goal "${data.name}" with a target of ${data.target_amount} GEL${contributionPart}.`,
+    action: { target: "funds", label: "View goal" },
   };
 }
 
@@ -391,11 +391,11 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "create_fund",
     description:
-      "Creates a new savings fund (a labeled sub-goal like 'Vacation' or 'Emergency fund') with a target amount. Use this when the user wants to start saving toward something specific or set a savings goal — not for recording a one-off transaction.",
+      "Creates a new savings goal (a labeled target like 'Vacation' or 'Emergency fund') with a target amount. Use this when the user wants to start saving toward something specific or set a savings goal — not for recording a one-off transaction.",
     parameters: {
       type: "OBJECT",
       properties: {
-        name: { type: "STRING", description: "Short name for the fund, e.g. 'Vacation' or 'Emergency fund'." },
+        name: { type: "STRING", description: "Short name for the goal, e.g. 'Vacation' or 'Emergency fund'." },
         target_amount: { type: "NUMBER", description: "The total amount in GEL the user wants to save toward." },
         contribution_mode: { type: "STRING", description: "How the user plans to contribute monthly: 'fixed' (a flat GEL amount) or 'percent' (a percentage of income). Defaults to 'fixed'." },
         contribution_value: { type: "NUMBER", description: "The monthly contribution amount (GEL if fixed, percent if percent-of-income). Omit if the user hasn't decided yet." },

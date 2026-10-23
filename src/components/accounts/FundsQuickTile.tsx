@@ -1,15 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { CircleDollarSign } from "lucide-react";
-import { useFunds } from "@/hooks/useFunds";
-import { formatGEL } from "@/lib/format";
 import { useLanguage } from "@/lib/LanguageContext";
 
 export function FundsQuickTile() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { funds } = useFunds();
-
-  const totalSaved = funds.reduce((sum, f) => sum + f.saved_amount, 0);
 
   return (
     <button
@@ -20,10 +15,7 @@ export function FundsQuickTile() {
         <CircleDollarSign size={13} />
       </span>
       <div className="min-w-0 w-full">
-        <p className="text-[10px] text-text-muted">{t("navFunds")}</p>
-        <p className="truncate font-mono text-xs font-bold tabular text-text-primary">
-          {funds.length > 0 ? formatGEL(totalSaved) : t("noData")}
-        </p>
+        <p className="truncate text-[10px] text-text-muted">{t("navFunds")}</p>
       </div>
     </button>
   );

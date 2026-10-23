@@ -1,5 +1,4 @@
 import { PieChart } from "lucide-react";
-import { budgetRules } from "@/data/budgetRules";
 import { useLanguage } from "@/lib/LanguageContext";
 
 interface BudgetQuickTileProps {
@@ -18,10 +17,7 @@ export function BudgetQuickTile({ onClick }: BudgetQuickTileProps) {
         <PieChart size={13} />
       </span>
       <div className="min-w-0 w-full">
-        <p className="text-[10px] text-text-muted">{t("navBudget")}</p>
-        <p className="truncate font-mono text-xs font-bold tabular text-text-primary">
-          {t("budgetRulesCount").replace("{count}", String(budgetRules.length))}
-        </p>
+        <p className="truncate text-[10px] text-text-muted">{t("navBudget")}</p>
       </div>
     </button>
   );

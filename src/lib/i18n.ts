@@ -6,7 +6,7 @@ export const translations = {
 
   // Header icons
   navGraphs: { ka: "გრაფები", en: "Graphs" },
-  navFunds: { ka: "ფონდები", en: "Funds" },
+  navFunds: { ka: "მიზნები", en: "Goals" },
   chartDrawerTitle: { ka: "ფინანსური მიმოხილვა", en: "Financial overview" },
   accountMenu: { ka: "ანგარიშის მენიუ", en: "Account menu" },
   manageAccounts: { ka: "ბარათების მართვა", en: "Manage accounts" },
@@ -220,7 +220,6 @@ export const translations = {
   budgetRuleLabel: { ka: "წესი", en: "Rule" },
   allocatedLabel: { ka: "გადანაწილებული", en: "Allocated" },
   perMonthSuffix: { ka: "/თვე", en: "/mo" },
-  budgetRulesCount: { ka: "{count} წესი", en: "{count} rules" },
 
   // Credit risk check
   navCredit: { ka: "სესხის შეფასება", en: "Loan approval estimate" },
@@ -272,12 +271,11 @@ export const translations = {
   },
   yearsAtJobLabel: { ka: "სამსახურის სტაჟი (წლები)", en: "Years at job" },
   askFinoButton: { ka: "Fino-ს კითხვა ამაზე", en: "Ask Fino about this" },
-  banksCompared: { ka: "{count} ბანკი", en: "{count} banks" },
 
-  // Funds
+  // Goals (formerly "Funds")
   fundsSubtitle: { ka: "დაზოგე შემოსავლიდან ყოველთვიურად, მიზნობრივად", en: "Save from your income every month, toward a target" },
-  addFund: { ka: "ფონდის დამატება", en: "Add fund" },
-  fundName: { ka: "ფონდის სახელი", en: "Fund name" },
+  addFund: { ka: "მიზნის დამატება", en: "Add goal" },
+  fundName: { ka: "მიზნის სახელი", en: "Goal name" },
   fundNamePlaceholder: { ka: "მაგ. შვებულება", en: "e.g. Vacation" },
   targetAmount: { ka: "სამიზნე თანხა", en: "Target amount" },
   monthlyContribution: { ka: "ყოველთვიური შენატანი", en: "Monthly contribution" },
@@ -288,12 +286,12 @@ export const translations = {
   monthlyFixed: { ka: "თვეში {amount}", en: "{amount}/month" },
   monthlyPercent: { ka: "შემოსავლის {percent}% თვეში", en: "{percent}% of income/month" },
   addMoney: { ka: "თანხის დამატება", en: "Add money" },
-  noFunds: { ka: "ჯერ არ გაქვს დამატებული ფონდი", en: "No funds yet" },
+  noFunds: { ka: "ჯერ არ გაქვს დამატებული მიზანი", en: "No goals yet" },
   noFundsHint: {
-    ka: "შექმენი ფონდი, მაგალითად სარეზერვო ან შვებულებისთვის, და ყოველთვიურად ზოგე მასში",
-    en: "Create a fund — like a rainy day fund or a vacation fund — and save into it every month",
+    ka: "შექმენი მიზანი, მაგალითად სარეზერვო ან შვებულებისთვის, და ყოველთვიურად ზოგე მასში",
+    en: "Create a goal — like a rainy day fund or a vacation — and save into it every month",
   },
-  rainyDayFundName: { ka: "სარეზერვო ფონდი", en: "Rainy day fund" },
+  rainyDayFundName: { ka: "სარეზერვო მიზანი", en: "Rainy day goal" },
   rainyDaySuggestion: {
     ka: "რეკომენდებული: {amount} (6 თვის შემოსავალი)",
     en: "Suggested: {amount} (6 months of income)",
