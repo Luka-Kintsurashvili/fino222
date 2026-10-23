@@ -330,6 +330,14 @@ export const translations = {
     ka: "ბოდიში, პასუხის მიღება ვერ მოხერხდა. სცადე ისევ.",
     en: "Sorry, couldn't get a response. Please try again.",
   },
+  chatHistoryLoadError: {
+    ka: "ისტორიის ჩატვირთვა ვერ მოხერხდა — შენი წინა მიმოწერა არ წაშლილა, უბრალოდ ვერ ჩაიტვირთა. სცადე განახლება.",
+    en: "Couldn't load your chat history — your earlier messages aren't gone, they just failed to load. Try refreshing.",
+  },
+  chatSessionExpired: {
+    ka: "სესია ვადაგასულია — გთხოვ თავიდან შედი ანგარიშზე.",
+    en: "Your session expired — please sign in again.",
+  },
   chatSuggestion1: { ka: "როგორ ხარჯავ ამ თვეში?", en: "How am I spending this month?" },
   chatSuggestion2: { ka: "როგორ დავზოგო მეტი?", en: "How can I save more?" },
   chatSuggestion3: { ka: "რა არის ჩემი წმინდა ღირებულება?", en: "What's my net worth?" },

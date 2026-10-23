@@ -58,18 +58,30 @@ export function useFinoChat() {
     let cancelled = false;
     setHistoryLoaded(false);
 
+    async function fetchHistory() {
+      return supabase.from("chat_messages").select("*").order("created_at", { ascending: true }).limit(100);
+    }
+
     async function loadHistory() {
       if (!user || !isSupabaseConfigured) {
         if (!cancelled) setHistoryLoaded(true);
         return;
       }
-      const { data, error: fetchError } = await supabase
-        .from("chat_messages")
-        .select("*")
-        .order("created_at", { ascending: true })
-        .limit(100);
+
+      let { data, error: fetchError } = await fetchHistory();
+      if (fetchError) {
+        // A stale/expired session is the most common cause — refresh and retry once before
+        // giving up, so a transient auth hiccup doesn't make real history look like it vanished.
+        console.error("Failed to load chat history, retrying after session refresh:", fetchError.message);
+        await supabase.auth.refreshSession();
+        ({ data, error: fetchError } = await fetchHistory());
+      }
       if (cancelled) return;
-      if (!fetchError && data && data.length > 0) {
+
+      if (fetchError) {
+        console.error("Failed to load chat history after retry:", fetchError.message);
+        setError(t("chatHistoryLoadError"));
+      } else if (data && data.length > 0) {
         setMessages(data.map((m) => ({ id: m.id, role: m.role, text: m.text, action: m.action ?? undefined })));
       }
       setHistoryLoaded(true);
@@ -79,7 +91,7 @@ export function useFinoChat() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [user?.id, t]);
 
   useEffect(() => {
     if (!historyLoaded || bannerShownRef.current || dueSoon.length === 0) return;
@@ -152,25 +164,33 @@ export function useFinoChat() {
     setLoading(true);
     await persistMessage(userMessage);
 
-    const { data, error: fnError } = await supabase.functions.invoke("chat", {
-      body: {
-        messages: history.filter((m) => !NON_CONVERSATION_IDS.has(m.id)).map((m) => ({ role: m.role, text: m.text })),
-        mode,
-        snapshot,
-        language,
-      },
-    });
+    const payload = {
+      messages: history.filter((m) => !NON_CONVERSATION_IDS.has(m.id)).map((m) => ({ role: m.role, text: m.text })),
+      mode,
+      snapshot,
+      language,
+    };
+    let { data, error: fnError } = await supabase.functions.invoke("chat", { body: payload });
+
+    // A stale/expired session surfaces as a 401 here — refresh and retry once instead of
+    // immediately failing, so a routine token expiry doesn't look like a broken reply.
+    if (fnError && (fnError as { context?: unknown }).context instanceof Response && (fnError as { context: Response }).context.status === 401) {
+      await supabase.auth.refreshSession();
+      ({ data, error: fnError } = await supabase.functions.invoke("chat", { body: payload }));
+    }
 
     setLoading(false);
 
     if (fnError) {
       let detail = fnError.message;
+      let isAuthError = false;
       const context = (fnError as { context?: unknown }).context;
       if (context instanceof Response) {
+        isAuthError = context.status === 401;
         const body = await context.clone().json().catch(() => null);
         if (body?.error) detail = body.error;
       }
-      setError(detail || t("chatErrorGeneric"));
+      setError(isAuthError ? t("chatSessionExpired") : detail || t("chatErrorGeneric"));
       return;
     }
 
