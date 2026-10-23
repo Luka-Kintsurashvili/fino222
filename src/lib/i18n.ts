@@ -2,6 +2,7 @@ export type Language = "ka" | "en";
 
 export const translations = {
   appName: { ka: "ფინო", en: "Fino" },
+  navChat: { ka: "ასისტენტი", en: "Assistant" },
   tagline: { ka: "შენი პირადი ფინანსური ასისტენტი", en: "Your personal finance assistant" },
 
   // Header icons
@@ -138,6 +139,7 @@ export const translations = {
   amount: { ka: "თანხა", en: "Amount" },
   graphsTileSubtitle: { ka: "შემოსავალი, ხარჯები და დანაზოგი", en: "Income, expenses, and savings" },
   incomeByMonth: { ka: "შემოსავალი თვეების მიხედვით", en: "Income by month" },
+  vsLastMonth: { ka: "გასულ თვესთან", en: "vs last month" },
   expensesByCategory: { ka: "ხარჯები კატეგორიების მიხედვით", en: "Expenses by category" },
   leftoverByMonth: { ka: "დარჩენილი თანხა თვეების მიხედვით", en: "Leftover by month" },
   noData: { ka: "მონაცემები არ არის", en: "No data yet" },

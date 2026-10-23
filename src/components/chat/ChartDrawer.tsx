@@ -157,12 +157,16 @@ function GraphsSection() {
   const dtiPercent = monthlyIncome > 0 ? (monthlyObligations / monthlyIncome) * 100 : 0;
   const savingsRate = monthlyIncome > 0 ? ((latest.income - latest.expenses) / monthlyIncome) * 100 : 0;
 
+  const categoryTotal = [...expensesByCategory.values()].reduce((s, v) => s + v, 0);
   const categoryData = [...expensesByCategory.entries()]
     .map(([key, amount]) => {
       const def = budgetCategories.find((c) => c.key === key);
-      return { key, label: def?.label ?? key, color: def?.color ?? "var(--color-accent)", amount };
+      return { key, label: def?.label ?? key, color: def?.color ?? "var(--color-accent)", amount, pct: categoryTotal > 0 ? (amount / categoryTotal) * 100 : 0 };
     })
     .sort((a, b) => b.amount - a.amount);
+
+  const prevMonth = monthlyTotals[monthlyTotals.length - 2];
+  const expenseTrendPct = prevMonth && prevMonth.expenses > 0 ? ((latest.expenses - prevMonth.expenses) / prevMonth.expenses) * 100 : null;
 
   return (
     <>
@@ -185,7 +189,14 @@ function GraphsSection() {
       )}
 
       <div>
-        <h3 className="mb-2 text-sm font-bold text-text-primary">{t("incomeByMonth")}</h3>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h3 className="text-sm font-bold text-text-primary">{t("incomeByMonth")}</h3>
+          {expenseTrendPct !== null && (
+            <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold tabular ${expenseTrendPct > 0 ? "bg-danger-soft text-danger" : "bg-success-soft text-success"}`}>
+              {expenseTrendPct > 0 ? "▲" : "▼"} {Math.abs(expenseTrendPct).toFixed(0)}% {t("vsLastMonth")}
+            </span>
+          )}
+        </div>
         {recentMonths.length === 0 ? (
           <p className="text-xs text-text-muted">{t("noData")}</p>
         ) : (
@@ -220,14 +231,22 @@ function GraphsSection() {
         {categoryData.length === 0 ? (
           <p className="text-xs text-text-muted">{t("noData")}</p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {categoryData.map((c) => (
-              <div key={c.key} className="flex items-center justify-between gap-2 rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />
-                  <span className="truncate text-sm text-text-primary">{c.label}</span>
+              <div key={c.key} className="rounded-xl border border-border-soft bg-surface px-3.5 py-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />
+                    <span className="truncate text-sm text-text-primary">{c.label}</span>
+                  </div>
+                  <div className="flex shrink-0 items-baseline gap-2">
+                    <span className="text-[11px] tabular text-text-muted">{c.pct.toFixed(0)}%</span>
+                    <span className="text-sm font-bold tabular text-text-primary">{formatGEL(c.amount)}</span>
+                  </div>
                 </div>
-                <span className="shrink-0 text-sm font-bold tabular text-text-primary">{formatGEL(c.amount)}</span>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-bg-elevated">
+                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${c.pct}%`, backgroundColor: c.color }} />
+                </div>
               </div>
             ))}
           </div>
