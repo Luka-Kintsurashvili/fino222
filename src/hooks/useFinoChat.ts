@@ -8,7 +8,9 @@ import { useFunds } from "@/hooks/useFunds";
 import { useAssets } from "@/hooks/useAssets";
 import { useLiabilities } from "@/hooks/useLiabilities";
 import { useReminders } from "@/hooks/useReminders";
-import { budgetCategories } from "@/data/budgetCategories";
+import { useBudgetPlan } from "@/hooks/useBudgetPlan";
+import { budgetCategories, type BudgetCategoryKey } from "@/data/budgetCategories";
+import { currentMonthExpensesByCategory } from "@/lib/budgetPace";
 import { CHAT_MODE_META, type ChatMode } from "@/lib/chatModes";
 import { formatGEL } from "@/lib/format";
 
@@ -46,11 +48,12 @@ export function useFinoChat() {
   const [error, setError] = useState<string | null>(null);
 
   const { totalBalance } = useAccounts();
-  const { transactions, expensesByCategory } = useTransactions();
+  const { transactions, expenses, expensesByCategory } = useTransactions();
   const { funds } = useFunds();
   const { liquidTotal, nonliquidTotal } = useAssets();
   const { total: liabilitiesTotal } = useLiabilities();
   const { dueSoon, acknowledgeReminder, refresh: refreshReminders } = useReminders();
+  const { plan: budgetPlan } = useBudgetPlan();
   const bannerShownRef = useRef(false);
 
   // Load persisted history so the conversation survives route navigation and page reloads.
@@ -120,6 +123,8 @@ export function useFinoChat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
+  const spentByCategory = useMemo(() => currentMonthExpensesByCategory(expenses), [expenses]);
+
   const snapshot = useMemo(() => {
     const now = new Date();
     const monthPrefix = now.toISOString().slice(0, 7);
@@ -135,6 +140,22 @@ export function useFinoChat() {
         amount,
       }));
 
+    // Only included when the user has actually saved a budget — lets Fino ground suggestions
+    // like "category X still has Y GEL left, redirect some of that" in real numbers instead
+    // of guessing which category has room.
+    const categoryBudgets = budgetPlan
+      ? (Object.keys(budgetPlan.amounts) as BudgetCategoryKey[]).map((key) => {
+          const budgeted = budgetPlan.amounts[key];
+          const spent = spentByCategory[key] ?? 0;
+          return {
+            category: budgetCategories.find((c) => c.key === key)?.label ?? key,
+            budgeted,
+            spent,
+            remaining: budgeted - spent,
+          };
+        })
+      : undefined;
+
     return {
       totalBalance,
       netWorth: liquidTotal + nonliquidTotal - liabilitiesTotal,
@@ -143,8 +164,9 @@ export function useFinoChat() {
       topCategories,
       funds: funds.map((f) => ({ name: f.name, saved: f.saved_amount, target: f.target_amount })),
       liabilitiesTotal,
+      categoryBudgets,
     };
-  }, [transactions, expensesByCategory, totalBalance, liquidTotal, nonliquidTotal, liabilitiesTotal, funds]);
+  }, [transactions, expensesByCategory, totalBalance, liquidTotal, nonliquidTotal, liabilitiesTotal, funds, budgetPlan, spentByCategory]);
 
   async function persistMessage(message: ChatMessage) {
     if (!user || !isSupabaseConfigured) return;
