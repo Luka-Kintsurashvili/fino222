@@ -306,7 +306,9 @@ async function rememberFactHandler(supabase: SupabaseClient, userId: string, inp
   return { summary: `Remembered: "${fact}". Confirm to the user what was saved, in your own words, so they can correct it if it's wrong.` };
 }
 
-async function checkStoreDiscountsHandler(supabase: SupabaseClient, _userId: string, _input: Record<string, unknown>): Promise<ToolResult> {
+async function checkStoreDiscountsHandler(supabase: SupabaseClient, _userId: string, input: Record<string, unknown>): Promise<ToolResult> {
+  const productQuery = typeof input.product_query === "string" ? input.product_query.trim() : "";
+
   const { data: storeRows, error: storeError } = await supabase
     .from("discount_offers")
     .select("store_slug, store_name_ka, store_name_en")
@@ -326,6 +328,46 @@ async function checkStoreDiscountsHandler(supabase: SupabaseClient, _userId: str
   if (txError) return { summary: `Error reading transactions: ${txError.message}` };
 
   const frequentStores = detectFrequentStores(expenses ?? [], knownStores);
+
+  // Product-specific lookup (e.g. "how much do eggs cost?") — search real tracked SKUs across
+  // every known store, not just the user's frequent ones. ekalata only covers packaged
+  // supermarket products, never restaurants/prepared food, so "no match" must be reported
+  // honestly rather than letting the model fill the gap from general knowledge.
+  if (productQuery) {
+    const frequentSlugs = new Set(frequentStores.map((s) => s.storeSlug));
+    const { data: productMatches, error: productError } = await supabase
+      .from("discount_offers")
+      .select("store_slug, store_name_ka, product_name_ka, price_new, price_old")
+      .ilike("product_name_ka", `%${productQuery}%`)
+      .limit(50);
+    if (productError) return { summary: `Error searching discount offers: ${productError.message}` };
+
+    if (!productMatches || productMatches.length === 0) {
+      return {
+        summary: `No real data for "${productQuery}" exists in ekalata.gov.ge's tracked products — it only covers packaged supermarket SKUs (Carrefour, Nikora, Goodwill, Spar, Magniti, etc.), never restaurants or prepared/cooked food (e.g. khinkali at a restaurant isn't tracked). Tell the user honestly that you don't have real pricing data for this specific item — never invent a price, store, or restaurant name.`,
+      };
+    }
+
+    const ranked = productMatches
+      .map((o) => ({ ...o, isFrequent: frequentSlugs.has(o.store_slug) }))
+      .sort((a, b) => Number(b.isFrequent) - Number(a.isFrequent) || Number(a.price_new) - Number(b.price_new))
+      .slice(0, 8);
+
+    const lines = ranked.map((o) => {
+      const hasDiscount = o.price_old != null && Number(o.price_old) > Number(o.price_new);
+      const discountNote = hasDiscount
+        ? ` (იყო ${o.price_old} GEL, -${(((Number(o.price_old) - Number(o.price_new)) / Number(o.price_old)) * 100).toFixed(0)}%)`
+        : "";
+      return `${o.store_name_ka}: ${o.product_name_ka} — ${o.price_new} GEL${discountNote}`;
+    });
+
+    return {
+      summary: `Real current prices for "${productQuery}" (source: ekalata.gov.ge, Georgia's government price-transparency tool, today's snapshot):\n${lines.join(
+        "\n"
+      )}\nOnly state these exact products/stores/prices from this list — never add or guess a product, store, or price that isn't here.`,
+    };
+  }
+
   if (frequentStores.length === 0) {
     return {
       summary:
@@ -527,8 +569,17 @@ export const TOOLS: ToolDefinition[] = [
   {
     name: "check_store_discounts",
     description:
-      "Finds real current discounts at the stores the user actually shops at most, by matching their own transaction history against ekalata.gov.ge (Georgia's government price-transparency tool, synced daily). Use this when the user asks about saving money on groceries/shopping, or when it's naturally relevant to a conversation about lowering expenses. Only reports real, dated discount data — never invents prices or stores.",
-    parameters: { type: "OBJECT", properties: {} },
+      "Finds real current prices/discounts from ekalata.gov.ge (Georgia's government price-transparency tool, synced daily; covers packaged supermarket SKUs only — never restaurants or prepared food). With no arguments, matches the user's own transaction history against tracked stores and reports real discounts at the ones they actually shop at. Pass product_query whenever the user asks about a specific product or item's price (e.g. 'კვერცხი', 'რძე', 'olive oil') — this searches real tracked prices for that exact product across all stores. Only reports real, dated data that this tool actually returned — never invents prices, stores, products, or restaurants; if nothing matches, the tool says so and you must relay that honestly.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        product_query: {
+          type: "STRING",
+          description:
+            "A specific product/item name the user asked about, in Georgian or English (e.g. 'კვერცხი', 'olive oil'). Omit this for a general 'any discounts for me?' question.",
+        },
+      },
+    },
     handler: checkStoreDiscountsHandler,
   },
 ];
